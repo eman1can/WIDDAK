@@ -1,0 +1,10 @@
+To generate a settlement select a box that satisfies the requirements, than select the Beautiful_settlement filter.
+There will not be a sign to indicate the location of the village, in stead there will be a 'vector' pointing to the 
+direction of the village: the iron block is at (x,z) = (0,0) the iron block is approximately 5 blocks off in the 
+direction of the village center and the diamond block is approximately 10 blocks off in the direction of the village center.
+
+Requirements:
+    - The selected box should include all ground blocks: there cannot be ground blocks underneath the box and the box cannot float above the ground
+    - The minimal x and z lengths/widths should be at least 132x132 in order for a settlement to be created in the box otherwise the filter Beautiful_settlement will crash
+
+    

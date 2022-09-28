@@ -1,0 +1,22 @@
+{
+  "effectiveSpace": {
+    "originX": 0,
+    "originZ": 0,
+    "sizeX": 20,
+    "sizeZ": 20
+  },
+  "interiorSpaces": [
+    {
+      "originX": 9,
+      "originZ": 3,
+      "sizeX": 11,
+      "sizeZ": 18
+    },
+    {
+      "originX": 3,
+      "originZ": 9,
+      "sizeX": 18,
+      "sizeZ": 11
+    }
+  ]
+}

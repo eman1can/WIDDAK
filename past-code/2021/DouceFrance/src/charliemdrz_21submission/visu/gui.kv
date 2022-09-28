@@ -1,0 +1,27 @@
+<Interface>:
+    my_zoom: my_zoom
+    button_box: button_box
+    orientation: 'vertical'
+
+    BoxLayout:
+        id : button_box
+        size_hint_y: None
+        height: 40
+
+        Label:
+            text: "Stock: " + root.stock_name
+
+    BoxStencil:
+        orientation: 'vertical'
+
+        FloatLayout:
+
+            Zoom:
+                id: my_zoom
+                obj: app
+
+                Image:
+                    id: my_image
+                    source: root.current_filepath
+                    allow_stretch: True
+                    keep_ratio: True

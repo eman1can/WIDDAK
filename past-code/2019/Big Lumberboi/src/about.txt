@@ -1,0 +1,23 @@
+Team members:
+Daniel Lundin
+Lasse Johan Lundin
+Jungne Losang
+
+The main filter file is SettlementGenerator.py.
+When selecting an area in MCEdit, the Y-axis is not important, only the X- and Z-axis of the selection is used.
+During our tests the runtime has been about 1 minute for a 256x256 area, except for when there is a jungle biome, since it cuts down trees very aggressively. 
+
+This settlement algorithm has been made by three software engineering students at the University of Southern Denmark. The algorithm is being made as a bachelor’s project and is still a work in progress.
+
+The algorithm starts off with an initial analysis of the terrain. The results of the analysis is saved to a Surface class, that contains data to be used for the other steps.
+
+First the height is calculated at each point in the selected area. Each point in the selected area is then given a steepness value. This value is simply the height difference between the highest and lowest point among the point and its four neighbor points. Biome data is also saved for each point, to be used later, when choosing materials for construction. Water placement is also saved for each point, to be used for the next step.
+
+Sections are created using the steepness map. I.e. sections are connected by points that has a steepness value of 0 or 1 and is not a water point. So sections are basically separated by hills and rivers. To decide what is the section middle is not obvious. We have chosen to find the middle by converging inwards from the edge, layer by layer. The last layer contains the points that are the furthest away from the edge. One of those points becomes the section middle point.
+
+After the section mids have been found, a road network is created in each section by choosing points in that section semi randomly as nodes and then connecting them using Kruskal’s algorithm, creating a minimum spanning tree for the specific section. After each section have their own spanning tree, all section are then connected using Kruskal’s algorithm again to generate a minimum spanning tree connecting all the section. The nodes are then connected with roads using the A* algorithm. The A* algorithm takes the difficulty of crossing steep terrain and water into account when calculating the cost of placing the road. Roads across water are built as bridges and very long roads across water are instead built as docks with a few boats.
+
+When the roads have been built, suitable build sites for houses and farms are found by expanding rectangles with a small height difference tolerance along the roads. Build sites for houses are prioritized and are reserved before finding build sites for farms. Structures are built using materials that are defined by the biome they are built in. 
+
+The final step of our algorithm is to place some towers. The towers are placed in small sections that have an average height above the average height of the whole area. The towers also have a minimum required distance between other towers.
+

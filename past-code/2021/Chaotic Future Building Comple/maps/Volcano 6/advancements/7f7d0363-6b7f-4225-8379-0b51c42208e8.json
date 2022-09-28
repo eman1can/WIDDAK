@@ -1,0 +1,15 @@
+{
+  "minecraft:adventure/adventuring_time": {
+    "criteria": {
+      "minecraft:desert_hills": "2021-06-24 09:22:07 +0100",
+      "minecraft:desert": "2021-06-24 09:08:48 +0100",
+      "minecraft:savanna_plateau": "2021-06-24 09:21:01 +0100",
+      "minecraft:dark_forest": "2021-06-24 09:09:06 +0100",
+      "minecraft:river": "2021-06-24 09:22:04 +0100",
+      "minecraft:savanna": "2021-06-24 09:20:59 +0100",
+      "minecraft:plains": "2021-06-24 09:05:46 +0100"
+    },
+    "done": false
+  },
+  "DataVersion": 2586
+}

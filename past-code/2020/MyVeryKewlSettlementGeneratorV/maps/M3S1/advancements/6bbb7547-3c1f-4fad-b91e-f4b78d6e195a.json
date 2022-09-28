@@ -1,0 +1,15 @@
+{
+  "minecraft:recipes/transportation/carrot_on_a_stick": {
+    "criteria": {
+      "has_carrot": "2020-08-12 19:52:03 -0400"
+    },
+    "done": true
+  },
+  "minecraft:adventure/adventuring_time": {
+    "criteria": {
+      "forest": "2020-08-03 20:57:48 -0400",
+      "extreme_hills": "2020-08-16 17:03:45 -0400"
+    },
+    "done": false
+  }
+}

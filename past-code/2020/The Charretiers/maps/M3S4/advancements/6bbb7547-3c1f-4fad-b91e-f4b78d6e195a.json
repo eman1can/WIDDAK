@@ -1,0 +1,16 @@
+{
+  "minecraft:recipes/misc/magenta_dye_from_lilac": {
+    "criteria": {
+      "has_double_plant": "2020-08-12 19:45:49 -0400"
+    },
+    "done": true
+  },
+  "minecraft:adventure/adventuring_time": {
+    "criteria": {
+      "forest": "2020-08-03 20:57:48 -0400",
+      "forest_hills": "2020-08-12 19:45:50 -0400",
+      "extreme_hills": "2020-08-16 17:08:04 -0400"
+    },
+    "done": false
+  }
+}
