@@ -6,7 +6,7 @@ __author__    = "Arthur van der Staaij"
 __copyright__ = "Copyright 2022, Arthur van der Staaij"
 __licence__   = "MIT"
 
-
+import traceback
 from typing import Union, Optional, List
 from contextlib import contextmanager
 from copy import copy, deepcopy
@@ -15,9 +15,9 @@ import time
 from concurrent import futures
 from glm import ivec3
 
-from util.util import isign, stdoutToStderr, eprint
+from gdpce_utils.util import isign, stdoutToStderr, eprint
 
-with stdoutToStderr(): # GDPC outputting to stdout on import messes with some scripts
+with stdoutToStderr():  # GDPC outputting to stdout on import messes with some scripts
     from gdpc import interface, direct_interface, worldLoader
 
 from gdpce.vector_util import scaleToFlip3D, Rect, boxBetween
@@ -40,8 +40,9 @@ def getWorldSlice(rect: Rect):
         try:
             attempts += 1
             return worldLoader.WorldSlice(rect.begin[0], rect.begin[1], rect.end[0], rect.end[1])
-        except Exception as e: # pylint: disable=broad-except
+        except Exception as e:  # pylint: disable=broad-except
             if attempts < 10:
+                print(traceback.format_exc())
                 eprint("Could not get the world slice. Try reducing your render distance. I'll retry in a bit.")
                 time.sleep(2)
             else:

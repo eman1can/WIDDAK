@@ -7,37 +7,28 @@ __copyright__ = "Copyright 2022, Ethan Wolfe"
 __licence__   = "MIT"
 
 
-import sys
-
 import numpy as np
-from gdpc.toolbox import loop2d
-from glm import ivec2, ivec3, bvec3
-from matplotlib import pyplot as plt
-
-from gdpce_utils.util import eprint
-
-from gdpce.vector_util import addY, vecString, Rect, Box, centeredSubRect, rectSlice
-from gdpce.transform import Transform, rotatedBoxTransform, scaledBoxTransform, flippedBoxTransform
-from gdpce.nbt_util import signNBT
-from gdpce.block import Block
-from gdpce.interface import Interface, getBuildArea, getWorldSlice
-from gdpce.geometry import placeBox, placeRectOutline, placeCheckeredBox
-import gdpce.model
-
 from gdpc import lookup
+from gdpc.toolbox import loop2d
+from glm import ivec2
+from matplotlib import pyplot as plt
+from gdpce.interface import getBuildArea, getWorldSlice
+from gdpce.geometry import Rect
 
 import cv2
-
+print('Finished Imports')
 
 def main():
+    print('Getting The World Slice')
     # Get the build area
     buildArea = getBuildArea()
     buildRect = buildArea.toRect()
 
     # Get world slice and height map
-    worldSlice = getWorldSlice(Rect(ivec2(1024, 1024), ivec2(1280, 1280)))
+    worldSlice = getWorldSlice(buildRect)
     heightMap = np.array(worldSlice.heightmaps["OCEAN_FLOOR"], dtype=int)
 
+    print('Calculating World Data')
     # calculate the gradient (steepness)
     decrementor = np.vectorize(lambda a: a - 1)
     cvheightmap = np.clip(decrementor(heightMap), 0, 255).astype(np.uint8)
