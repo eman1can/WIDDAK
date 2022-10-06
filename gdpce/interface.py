@@ -15,10 +15,10 @@ import time
 from concurrent import futures
 from glm import ivec3
 
-from gdpce_utils.util import isign, stdoutToStderr, eprint
+from gdpce.utils.util import isign, stdoutToStderr, eprint
 
 with stdoutToStderr():  # GDPC outputting to stdout on import messes with some scripts
-    from gdpc import interface, direct_interface, worldLoader
+    from gdpc_source.gdpc import interface, direct_interface, worldLoader
 
 from gdpce.vector_util import scaleToFlip3D, Rect, boxBetween
 from gdpce.transform import Transform, toTransform

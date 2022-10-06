@@ -26,7 +26,7 @@ import sys
 import numpy as np
 from glm import ivec2, ivec3, bvec3
 
-from util.util import eprint
+from gdpce.utils.util import eprint
 
 from gdpce.vector_util import addY, vecString, Rect, Box, centeredSubRect, rectSlice
 from gdpce.transform import Transform, rotatedBoxTransform, scaledBoxTransform, flippedBoxTransform
