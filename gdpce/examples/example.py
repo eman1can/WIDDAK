@@ -22,6 +22,7 @@ __licence__   = "MIT"
 
 
 import sys
+sys.path.append('../')
 
 import numpy as np
 from glm import ivec2, ivec3, bvec3

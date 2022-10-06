@@ -2,6 +2,8 @@ from os.path import exists
 
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
+from buildings import *
+import json
 
 """
 On HTML Page
@@ -148,7 +150,7 @@ def get_material_key(item_dictionary, material):
     return None
 
 def parse_building_list(item_dictionary):
-    with open('Village_Structure_Blueprints.html', 'r', encoding='utf-8') as file:
+    with open('blueprints/Village_Structure_Blueprints.html', 'r', encoding='utf-8') as file:
         soup = BeautifulSoup(file.read(), 'html.parser')
 
     blueprint_data = soup.find('div', attrs={'class': 'mw-parser-output'})
@@ -160,19 +162,21 @@ def parse_building_list(item_dictionary):
             biome_name = biome_name[:biome_name.index(' ')]
         buildings = [b for b in blueprint_data.find_all('div', attrs={'class': 'load-page'}) if str(biome_name) in b['data-page']]
         print(biome_name, '-', len(buildings))
+
+        building_templates = {}
         for building in buildings:
             key = building['data-page'][building['data-page'].rindex('/') + 1:]
             name = key[:-len(' blueprint')].title()
             key = key.replace(' ', '_')
-            if not exists(f'buildings/{key}.html'):
+            if not exists(f'blueprints/buildings/{key}.html'):
                 link = f'https://minecraft.fandom.com/wiki/Village/Structure/Blueprints/{key}'
                 print('\t' + name, link)
                 with urlopen(link) as page_stream:
                     page = page_stream.read()
-                with open(f'buildings/{key}.html', 'wb') as building_file:
+                with open(f'blueprints/buildings/{key}.html', 'wb') as building_file:
                     building_file.write(page)
             else:
-                with open(f'buildings/{key}.html', 'rb') as building_file:
+                with open(f'blueprints/buildings/{key}.html', 'rb') as building_file:
                     page = building_file.read()
 
             building_data = BeautifulSoup(page, 'html.parser')
@@ -191,6 +195,37 @@ def parse_building_list(item_dictionary):
                     continue
                 material_ids.append(item_dictionary[material_key])
             block_lists[key] = material_ids
+
+            # TODO: If Want to Use Blueprints, access layers and materials
+            material_ids = []
+            for material in list(materials.keys()):
+                material_key = get_material_key(item_dictionary, material)
+                if material_key is None:
+                    continue
+                material_ids.append(item_dictionary[material_key])
+            block_lists[key] = material_ids
+
+            layer_template = []
+            for layer_key in list(layers.keys()):
+                layer_blocks = layers[layer_key]
+                for i in range(len(layer_blocks)):
+                    for j in range(len(layer_blocks[i])):
+                        if (layer_blocks[i][j] is None): continue
+                        title = layer_blocks[i][j].title()
+                        if title == 'Double Smooth Stone Slab':
+                            material_key = 'double_stone_slab'
+                        elif 'Cauldron' in title:
+                            material_key = 'cauldron'
+                        else:
+                            material_key = item_dictionary.get(get_material_key(item_dictionary, title))   
+                        material_key = material_key.replace('dirt_path', 'grass_path')
+                        layer_blocks[i][j] = material_key
+                layer_template.append(layer_blocks)
+            building_templates[key] = layer_template
+        return building_templates
+
+
+            
 
     # Fold Buildings into single lists
     output = {}
@@ -267,22 +302,35 @@ def output_code(buildings):
         else:
             buildings_by_biome[biome_name] = {building_name: materials}
 
-    for biome_name, buildings in buildings_by_biome.items():
-        for building_name, materials in buildings.items():
-            key = f'{biome_name}_{building_name}'.upper()
-            if 'minecraft:water' in materials:
-                materials.remove('minecraft:water')
-                print(key + ' = {"' + '", "'.join(set(materials)) + '"} | WATERS')
-            else:
-                print(key + ' = {"' + '", "'.join(set(materials)) + '"}')
-        print(f'{biome_name}_village_blocks'.upper() + ' = ' + ' | '.join([f'{biome_name}_{b}'.upper() for b in buildings.keys()]))
-    print('VILLAGE_BLOCKS = PLAINS_VILLAGE_BLOCKS | DESERT_VILLAGE_BLOCKS | SAVANNA_VILLAGE_BLOCKS | TAIGA_VILLAGE_BLOCKS | SNOWY_VILLAGE_BLOCKS')
+    # for biome_name, buildings in buildings_by_biome.items():
+    #     for building_name, materials in buildings.items():
+    #         key = f'{biome_name}_{building_name}'.upper()
+    #         if 'minecraft:water' in materials:
+    #             materials.remove('minecraft:water')
+    #             print(key + ' = {"' + '", "'.join(set(materials)) + '"} | WATERS')
+    #         else:
+    #             print(key + ' = {"' + '", "'.join(set(materials)) + '"}')
+    #     print(f'{biome_name}_village_blocks'.upper() + ' = ' + ' | '.join([f'{biome_name}_{b}'.upper() for b in buildings.keys()]))
+    # print('VILLAGE_BLOCKS = PLAINS_VILLAGE_BLOCKS | DESERT_VILLAGE_BLOCKS | SAVANNA_VILLAGE_BLOCKS | TAIGA_VILLAGE_BLOCKS | SNOWY_VILLAGE_BLOCKS')
 
 
-if __name__ == "__main__":
-    print('Parsing Names and Identifiers')
-    name_to_id, id_to_name = parse_items()
-    print('Parsing Structures')
+# if __name__ == "__main__":
+#     print('Parsing Names and Identifiers')
+#     name_to_id, id_to_name = parse_items(False)
+#     print('Parsing Structures')
+#     building_list = parse_building_list(name_to_id)
+#     print(building_list)
+#     # print('Building Code')
+#     # output_code(building_list)
+
+def get_building_templates():
+    name_to_id, id_to_name = parse_items(False)
     building_list = parse_building_list(name_to_id)
-    print('Building Code')
-    output_code(building_list)
+    return building_list
+
+templates = get_building_templates()
+print('templates', templates)
+
+# save building templates 
+with open("blueprints/building_templates.json", "w") as outfile:
+    outfile.write(json.dumps(templates))

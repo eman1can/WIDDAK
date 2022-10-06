@@ -9,6 +9,8 @@ __author__    = "Arthur van der Staaij"
 __copyright__ = "Copyright 2022, Arthur van der Staaij"
 __licence__   = "MIT"
 
+import sys
+sys.path.append('../')
 
 from glm import ivec3
 
