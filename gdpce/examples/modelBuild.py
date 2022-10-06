@@ -12,7 +12,7 @@ import sys
 import argparse
 from glm import ivec3 # Import needed for eval
 
-from gdpce.utils.util import eprint
+from util.util import eprint
 
 from gdpce.vector_util import vecString, Box
 from gdpce.transform import Transform, rotatedBoxTransform
