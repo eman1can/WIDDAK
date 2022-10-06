@@ -15,7 +15,7 @@ from scipy import ndimage
 import glm
 from glm import ivec2, ivec3, vec2, vec3, bvec2, bvec3
 
-from gdpce_utils.util import isign, Range
+from gdpce.utils.util import isign, Range
 
 
 # ==================================================================================================

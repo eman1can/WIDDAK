@@ -10,7 +10,7 @@ __licence__   = "MIT"
 from typing import Optional, Union, List
 from dataclasses import dataclass
 from glm import ivec3
-from gdpc import geometry
+from gdpc_source.gdpc import geometry
 
 from gdpce.vector_util import addY, scaleToFlip3D, Rect, Box, boxBetween
 from gdpce.block import Block

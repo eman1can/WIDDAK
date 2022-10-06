@@ -1,6 +1,6 @@
+import zipfile
 import urllib.request
 from os import makedirs, remove
-import zipfile
 from os.path import join
 
 data = """

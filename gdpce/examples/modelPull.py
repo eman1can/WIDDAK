@@ -12,7 +12,7 @@ from typing import List
 import argparse
 from glm import ivec3
 
-from util.util import eprint
+from gdpce.utils.util import eprint
 from gdpce.vector_util import Box, boxBetween
 from gdpce.transform import rotatedBoxTransformAndSize
 from gdpce.interface import getBuildArea, getWorldSlice
