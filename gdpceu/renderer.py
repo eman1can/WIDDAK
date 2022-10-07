@@ -1,14 +1,15 @@
-from os.path import exists
-from time import sleep
-
+from os.path import exists, join
 import numpy as np
 import open3d as o3d
 
 from sys import platform
 from PIL import Image, ImageShow
+from open3d.cpu.pybind.visualization.rendering import MaterialRecord, OffscreenRenderer
+from open3d.visualization import rendering
 
 from gdpc_source.gdpc import lookup
 from gdpc_source.gdpc.toolbox import loop2d, loop3d
+from gdpceu.textures import IDENTIFIER_TO_TEXTURES
 
 """
 The default viewer is the default system application for PNG files.
@@ -140,7 +141,7 @@ class Renderer:
 
     def make_3d_render(self, rect, world_slice, color_map=None, xs=0, ys=0, zs=0, fill_mode='am', nn=2):
         self._setup_render(world_slice, color_map)
-        self._render_3d = o3d.geometry.TriangleMesh()
+        self._render_3d = []
 
         x1, z1 = rect.begin
         x2, z2 = rect.end
@@ -160,11 +161,14 @@ class Renderer:
                 hc = self._get_hex_color(world_slice, x1 + x, y, z1 + z)
                 if hc == 0x000000:
                     continue
+                material = MaterialRecord()
+                material.albedo_img = join('block_assets', 'stone.png')
+
                 rgbc = self.bgr_hex_to_float_rgb(hc)
                 cube = o3d.geometry.TriangleMesh.create_box(width=1, height=1, depth=1)
-                cube.paint_uniform_color(rgbc)
+                # cube.paint_uniform_color(rgbc)
                 cube.translate([x + x * xs, y + y * ys, z + z * zs], relative=False)
-                self._render_3d += cube
+                self._render_3d.append((cube, material))
         return self
 
     def show_3d_render(self):
@@ -175,17 +179,34 @@ class Renderer:
         vis.create_window()
         opt = vis.get_render_option()
         opt.background_color = np.asarray([0, 0, 0])
-        self._render_3d.transform([[0.862, 0.011, -0.507, 0.0], [-0.139, 0.967, -0.215, 0.7], [0.487, 0.255, 0.835, -1.4], [0.0, 0.0, 0.0, 1.0]])
-        vis.add_geometry(self._render_3d)
+        for cube in self._render_3d:
+            cube.transform([[0.862, 0.011, -0.507, 0.0], [-0.139, 0.967, -0.215, 0.7], [0.487, 0.255, 0.835, -1.4], [0.0, 0.0, 0.0, 1.0]])
+            vis.add_geometry(cube)
         vis.run()
         vis.destroy_window()
         return self
 
-    def save_3d_render(self, file_path='output.ply'):
+    def save_3d_render(self, file_path=join('renders', 'output.ply')):
         if self._render_3d is None:
             print('3d render not created!')
             return self
         o3d.io.write_triangle_mesh(file_path, self._render_3d)
+        return self
+
+    def save_3d_render_as_image(self, file_path=join('renders', 'output.png'), x=70, y=60, z=70):
+        if self._render_3d is None:
+            print('3d render not created!')
+            return self
+        offscreen_renderer = OffscreenRenderer(2560, 1440)
+        offscreen_renderer.scene.scene.set_sun_light([-1, -1, -1], [1.0, 1.0, 1.0], 100000)
+        offscreen_renderer.scene.set_background(np.array([0, 0, 0, 0]))
+        offscreen_renderer.scene.camera.look_at([0, 0, 0], [x, y, z], [0, 1, 0])
+        material = rendering.MaterialRecord()
+        material.aspect_ratio = 1.0
+        material.shader = "defaultUnlit"
+        offscreen_renderer.scene.add_geometry('Building', self._render_3d, material)
+        image = offscreen_renderer.render_to_image()
+        o3d.io.write_image(file_path, image)
         return self
 
     def make_2d_template_render(self, template, color_map=None):
@@ -211,21 +232,50 @@ class Renderer:
     def make_3d_template_render(self, template, color_map=None, xs=0, ys=0, zs=0):
         self._setup_template_render(color_map)
 
-        yl = len(template)
-        xl = len(template[0])
-        zl = len(template[0][0])
+        yl, xl, zl = template.shape
 
-        self._render_3d = o3d.geometry.TriangleMesh()
+        self._render_3d = []
+
         for x, y, z in loop3d(xl, yl, zl):
-            blockID = template[y][x][z]
+            blockID = template.get_block(x, y, z)
             if blockID is None:
                 continue
-            hex_color = self._get_hex_color_for_id(blockID)
-            rgbc = self.bgr_hex_to_float_rgb(hex_color)
-            cube = o3d.geometry.TriangleMesh.create_box(width=1, height=1, depth=1)
-            cube.paint_uniform_color(rgbc)
-            cube.translate([x + x * xs, y + y * ys, z + z * zs], relative=False)
-            self._render_3d += cube
+            nbt = {}
+            if '[' in blockID:
+                blockID, nbt_data = blockID[:-1].split('[')
+                for nbt_value in nbt_data.split(','):
+                    k, v = nbt_value.split('=')
+                    nbt[k] = v
+            # hex_color = self._get_hex_color_for_id(blockID)
+            # rgbc = self.bgr_hex_to_float_rgb(hex_color)
+            if blockID not in IDENTIFIER_TO_TEXTURES:
+                print(blockID, 'not textured')
+                continue
+
+            texture_data = IDENTIFIER_TO_TEXTURES[blockID]
+            cube = o3d.geometry.TriangleMesh.create_box(*texture_data['size'], True, True)
+
+            cube.textures = [o3d.io.read_image(join('block_assets', image_source)) for image_source in texture_data['textures']]
+
+            cube.triangle_material_ids = o3d.utility.IntVector(texture_data['texture_ids'])
+            cube.compute_vertex_normals()
+
+            cx, cy, cz = x + x * xs, y + y * ys, z + z * zs
+            cube.translate([cx, cy, cz], relative=False)
+
+            if 'translate' in texture_data:
+                cube.translate(texture_data['translate'])
+
+            # Do NBT data
+            for k, v in nbt.items():
+                if k in texture_data:
+                    for operation, values in texture_data[k][v].items():
+                        if operation == 'rotation':
+                            cube.rotate(cube.get_rotation_matrix_from_xyz(values), center=(cx, cy, cz))
+                        elif operation == 'translate':
+                            cube.translate(values)
+
+            self._render_3d.append(cube)
         return self
 
     def make_3d_vox_render(self, vox_model, palette, xs=0, ys=0, zs=0):
@@ -237,7 +287,6 @@ class Renderer:
             hex_color = palette[color_index]
             if hex_color == 0x00:
                 continue
-            print('%X' % hex_color)
             rgbc = self.rgb_hex_to_float_rgb(hex_color)
             cube = o3d.geometry.TriangleMesh.create_box(width=1, height=1, depth=1)
             cube.paint_uniform_color(rgbc)

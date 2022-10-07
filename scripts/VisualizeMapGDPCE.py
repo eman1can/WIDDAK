@@ -41,6 +41,7 @@ for vox_name in listdir(vox_dir):
 
     renderer.make_3d_vox_render(model, vox_file.get_color_palette()).show_3d_render()
 
+
 # template = [
 #     [
 #         [None, 'minecraft:oak_trapdoor', 'minecraft:oak_trapdoor', 'minecraft:oak_trapdoor', None],
