@@ -67,14 +67,17 @@ class SavedWorldSlice(WorldSlice):
         # Other Must Be To the Right Or Below
         x1s, z1s, xls, zls = self.rect
         x1o, z1o, xlo, zlo = other.rect
+        x1, z1, x2, z2 = x1s, z1s, x1o + xlo, z1o + zlo
+
         if x1s + xls == x1o and zls == zlo:
             # To the Right
             print('To The Right')
-            x1, z1, x2, z2 = x1s, z1s, x1o + xlo, z1o + zlo
+
 
         elif z1s + zls == z1o and xls == xlo:
             # To the Bottom
             print('To The Bottom')
+
         else:
             print('Chunks not adjacent')
             return None

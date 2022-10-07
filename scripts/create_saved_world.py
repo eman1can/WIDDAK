@@ -25,6 +25,7 @@ if exists(join('worlds', f'{world_name}.dat')):
     if fx1 == x1 and fz1 == z1 and fx2 == x2 and fz2 == z2 and fstep == step:
         all_chunks_exist = True
         for x, z in loop2d(x1, z1, x2, z2, step):
+            print(x, z, exists(join('worlds', world_name, 'saved', f'{x}_{z}_{step}.chunk')))
             all_chunks_exist &= exists(join('worlds', world_name, 'saved', f'{x}_{z}_{step}.chunk'))
             if not all_chunks_exist:
                 x1, z1 = x, z
@@ -69,11 +70,16 @@ if not exists(join('worlds', world_name, 'raw', 'level.dat')):
             copy(src, dst)
 
 # Get Chunks
+print('Getting Chunks')
 for x, z in loop2d(x1, z1, x2, z2, step):
+    if exists(join('worlds', world_name, 'saved', f'{x}_{z}_{step}.chunk')):
+        continue
+    print(f'{x:5} - {z:5} -> {min(x2, x + step):5} - {min(z2, z + step):5}', end='')
     slice = worldLoader.WorldSlice(x, z, min(x2, x + step), min(z2, z + step))
     slice_name = join('worlds', world_name, 'saved', f'{x}_{z}_{step}.chunk')
     with open(slice_name, 'wb') as data:
         data.write(slice.byte_data)
-
+    print('\b' * 30, end='')
+print(f'Done')
 # 8192 * 8192 // 512 * 512 = 256
 # 67108864 // 262144 = 256

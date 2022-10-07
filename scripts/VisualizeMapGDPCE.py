@@ -12,7 +12,7 @@ import numpy as np
 
 from glm import ivec2
 
-from os import mkdir
+from os import listdir, mkdir
 from os.path import exists, join
 
 from PIL import Image as PILImage
@@ -26,8 +26,20 @@ from gdpce.geometry import Rect
 from gdpceu.renderer import Renderer
 from gdpceu.world_loader import SavedWorldSlice, World, WorldSlice
 
+from gdpceu.vox import VoxFile
+
 renderer = Renderer()
 renderer.set_default_viewer()
+
+vox_dir = join('blueprints', 'vox')
+for vox_name in listdir(vox_dir):
+    vox_file = VoxFile(join(vox_dir, vox_name))
+    vox_file.read()
+    vox_file.close()
+
+    model = vox_file.get_model()
+
+    renderer.make_3d_vox_render(model, vox_file.get_color_palette()).show_3d_render()
 
 # template = [
 #     [
@@ -57,15 +69,15 @@ renderer.set_default_viewer()
 #
 # exit(0)
 # Load Saved Worlds
-for world in ['TestWorld1764.dat', 'TestWorld1765.dat', 'TestWorld1766.dat', 'TestWorld1767.dat']:
+for world in ['TestWorld1763.dat']:
     test_world = World(join('worlds', world))
-    rect = Rect(ivec2(-2048, -2048), ivec2(256, 256))
+    rect = Rect(ivec2(0, 0), ivec2(2560, 2560))
     world_slice = test_world.getWorldSlice(rect)
-    #
-    # renderer.make_2d_render(rect, world_slice)
-    # renderer.save_2d_render().show_2d_render()
 
-    renderer.make_3d_render(rect, world_slice, fill_mode='rm').show_3d_render()
+    renderer.make_2d_render(rect, world_slice)
+    renderer.save_2d_render().show_2d_render()
+
+    # renderer.make_3d_render(rect, world_slice, fill_mode='rm').show_3d_render()
     # renderer.save_3d_render()
     break
 

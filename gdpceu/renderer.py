@@ -55,12 +55,22 @@ class Renderer:
     def get_color_map(self):
         return self._color_map
 
-    def hex_to_float_rgb(self, hex):
+    def bgr_hex_to_float_rgb(self, hex):
         if hex in self._color_map:
             return self._color_map[hex]
         b = (hex & 0xFF) / 0xFF
         g = ((hex >> 8) & 0xFF) / 0xFF
         r = ((hex >> 16) & 0xFF) / 0xFF
+        c = np.array([r, g, b], dtype=np.float64)
+        self._color_map[hex] = c
+        return c
+
+    def rgb_hex_to_float_rgb(self, hex):
+        if hex in self._color_map:
+            return self._color_map[hex]
+        r = (hex & 0xFF) / 0xFF
+        g = ((hex >> 8) & 0xFF) / 0xFF
+        b = ((hex >> 16) & 0xFF) / 0xFF
         c = np.array([r, g, b], dtype=np.float64)
         self._color_map[hex] = c
         return c
@@ -150,7 +160,7 @@ class Renderer:
                 hc = self._get_hex_color(world_slice, x1 + x, y, z1 + z)
                 if hc == 0x000000:
                     continue
-                rgbc = self.hex_to_float_rgb(hc)
+                rgbc = self.bgr_hex_to_float_rgb(hc)
                 cube = o3d.geometry.TriangleMesh.create_box(width=1, height=1, depth=1)
                 cube.paint_uniform_color(rgbc)
                 cube.translate([x + x * xs, y + y * ys, z + z * zs], relative=False)
@@ -211,7 +221,24 @@ class Renderer:
             if blockID is None:
                 continue
             hex_color = self._get_hex_color_for_id(blockID)
-            rgbc = self.hex_to_float_rgb(hex_color)
+            rgbc = self.bgr_hex_to_float_rgb(hex_color)
+            cube = o3d.geometry.TriangleMesh.create_box(width=1, height=1, depth=1)
+            cube.paint_uniform_color(rgbc)
+            cube.translate([x + x * xs, y + y * ys, z + z * zs], relative=False)
+            self._render_3d += cube
+        return self
+
+    def make_3d_vox_render(self, vox_model, palette, xs=0, ys=0, zs=0):
+        yl, xl, zl = vox_model.shape
+
+        self._render_3d = o3d.geometry.TriangleMesh()
+        for x, y, z in loop3d(xl, yl, zl):
+            color_index = vox_model[y][x][z]
+            hex_color = palette[color_index]
+            if hex_color == 0x00:
+                continue
+            print('%X' % hex_color)
+            rgbc = self.rgb_hex_to_float_rgb(hex_color)
             cube = o3d.geometry.TriangleMesh.create_box(width=1, height=1, depth=1)
             cube.paint_uniform_color(rgbc)
             cube.translate([x + x * xs, y + y * ys, z + z * zs], relative=False)
