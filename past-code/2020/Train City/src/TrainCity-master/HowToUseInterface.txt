@@ -1,9 +1,0 @@
-When creating a filter, you can add inputs for the user to enter when executing the filter on MCedit.
-
-Step 1 : In your main file (the one with the perform() method), add a variable called "inputs". This variable will be a tuple. Each member of the tuples will be one user input.
-Step 2 : Fill it with tuples. The first member of each tuple will be the name of the input seen by the user, while the second member will be the base value of the input.
-Step 3 : Inputs can take multiple forms by changing the second member of the tuple, like booleans (put True or False), a drop-down list (put a tuple), a label (put "label")... etc.
-Step 4 : Add an argument called "options" in your perform() method.
-Step 5 : The "options" argument will be in the form of a dictionary, with the first member of each tuple as the key, and the second member as the value.
-
-Have fun!

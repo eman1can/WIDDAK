@@ -1,1 +1,0 @@
-Although there are three options that can be changed in the MCEdit GUI, I strongly recommend keeping them at their default values.
