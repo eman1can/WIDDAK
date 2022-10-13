@@ -2,6 +2,10 @@
 renders/
 worlds/
 past-code/
+past-code/*
+past-code
+block_assets/*
+*.zip
 
 # IDE Files
 .idea
