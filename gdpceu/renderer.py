@@ -1,4 +1,6 @@
 from os.path import exists, join
+from traceback import format_exc
+
 import numpy as np
 import open3d as o3d
 
@@ -9,13 +11,14 @@ from open3d.visualization import rendering
 
 from gdpc_source.gdpc import lookup
 from gdpc_source.gdpc.toolbox import loop2d, loop3d
-from gdpceu.textures import IDENTIFIER_TO_TEXTURES
+from gdpceu.textures import IDENTIFIER_TO_TEXTURES, SIMPLE_TEXTURES
 
-"""
-The default viewer is the default system application for PNG files.
-Change this to be Whatever you want
-"""
+
 class PhotoViewer(ImageShow.Viewer):
+    """
+    The default viewer is the default system application for PNG files.
+    Change this to be Whatever you want
+    """
     def __init__(self, viewer_exe, format, options=None, **kwargs):
         self._exe = viewer_exe
         self.format = format
@@ -26,13 +29,9 @@ class PhotoViewer(ImageShow.Viewer):
     def get_command(self, file, **options):
         return f'{self._exe} "{file}" && ping -n 2 127.0.0.1 >NUL && del /f "{file}"'
 
+
 if platform == 'windows' and exists('C:/IrfanView/i_view64.exe'):
     print('Register IrfanView as Photo Viewer')
-
-
-
-
-
 
 
 class Renderer:
@@ -46,6 +45,8 @@ class Renderer:
         self._render_3d = None
         self._render_2d = None
         self._viewer = None
+
+        self._colors = set()
 
     def set_default_viewer(self, viewer='C:/IrfanView/i_view64.exe'):
         ImageShow.register(PhotoViewer(viewer, 'PNG'), 0)
@@ -88,7 +89,8 @@ class Renderer:
 
     def _setup_render(self, world_slice, color_map):
         self._color_map = color_map if color_map is not None else {}
-        self._height_map = np.array(world_slice.heightmaps["WORLD_SURFACE"][:-1, :-1], dtype=int)
+        surface_index = world_slice.heightmap_types.index('MOTION_BLOCKING')
+        self._height_map = world_slice.heightmaps[surface_index]
 
     def _setup_template_render(self, color_map):
         self._color_map = color_map if color_map is not None else {}
@@ -104,23 +106,26 @@ class Renderer:
 
     def _get_hex_color(self, world_slice, x, y, z):
         try:
-            blockID = world_slice.getBlockAt(x, y, z)
+            blockID = world_slice.get_block_id_at(x, y, z)
+            self._colors.add(blockID)
             return self._get_hex_color_for_id(blockID)
-        except IndexError:
-            raise IndexError(f'Failed to get block at index {x} {y} {z}')
+        except IndexError as ie:
+            print(format_exc())
+            return 0xFF00C7
 
     def make_2d_render(self, rect, world_slice, color_map=None):
         self._setup_render(world_slice, color_map)
         self._render_2d = np.zeros((*rect.size, 3), dtype=np.uint8)
 
-        x1, z1 = rect.begin
-        xo, zo = x1 - world_slice.rect[0], z1 - world_slice.rect[1]
-        print(x1, z1, xo, zo)
-        for x, z in loop2d(*rect.size):
-            y = self._height_map[(xo + x, zo + z)] - 1  # Surface Map is Offset by 1
-            hc = self._get_hex_color(world_slice, x1 + x, y, z1 + z)
-            rgbc = self.hex_to_int_rgb(hc)
-            self._render_2d[x, z] = rgbc
+        for xix, x in enumerate(range(rect.x1, rect.x2)):
+            rx = x - rect.x1
+            xix %= 16
+            for zix, z in enumerate(range(rect.z1, rect.z2)):
+                zix %= 16
+                y = self._height_map[rx, z - rect.z1]
+                hc = self._get_hex_color(world_slice, x, y, z)
+                self._render_2d[xix, zix] = self.hex_to_int_rgb(hc)
+        print(self._colors)
         return self
 
     def show_2d_render(self):
@@ -139,6 +144,46 @@ class Renderer:
         pil_image.save(file_path)
         return self
 
+    def _render_cube(self, blockID, cx, cy, cz):
+        nbt = {}
+        if '[' in blockID:
+            blockID, nbt_data = blockID[:-1].split('[')
+            for nbt_value in nbt_data.split(','):
+                k, v = nbt_value.split('=')
+                nbt[k] = v
+
+        try:
+            texture_data = IDENTIFIER_TO_TEXTURES[blockID]
+        except KeyError:
+            if not exists(join('block_assets', f'{blockID.split(":")[1]}.png')):
+                raise Exception(f'{blockID.split(":")[1]}.png not found!')
+            texture_data = {
+                'size':        [1, 1, 1],
+                'textures':    [f'{blockID.split(":")[1]}.png'],
+                'texture_ids': np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], dtype=np.int32)
+            }
+        cube = o3d.geometry.TriangleMesh.create_box(*texture_data['size'], True, True)
+
+        cube.textures = [o3d.io.read_image(join('block_assets', image_source)) for image_source in texture_data['textures']]
+
+        cube.triangle_material_ids = o3d.utility.IntVector(texture_data['texture_ids'])
+        cube.compute_vertex_normals()
+
+        cube.translate([cx, cy, cz], relative=False)
+
+        if 'translate' in texture_data:
+            cube.translate(texture_data['translate'])
+
+        # Do NBT data
+        for k, v in nbt.items():
+            if k in texture_data:
+                for operation, values in texture_data[k][v].items():
+                    if operation == 'rotation':
+                        cube.rotate(cube.get_rotation_matrix_from_xyz(values), center=(cx, cy, cz))
+                    elif operation == 'translate':
+                        cube.translate(values)
+        return cube
+
     def make_3d_render(self, rect, world_slice, color_map=None, xs=0, ys=0, zs=0, fill_mode='am', nn=2):
         self._setup_render(world_slice, color_map)
         self._render_3d = []
@@ -146,29 +191,28 @@ class Renderer:
         x1, z1 = rect.begin
         x2, z2 = rect.end
         xl, zl = x2 - x1, z2 - z1
-        xo, zo = x1 - world_slice.rect[0], z1 - world_slice.rect[1]
+        xo, zo = x1 - world_slice.rect.x1, z1 - world_slice.rect.z1
         by = 0
         if fill_mode == 'am':
-            by = np.min(self._height_map[xo:xo + xl, zo:zo + zl]) - 1  # Height Map is Offset by 1
+            by = np.min(self._height_map[xo:xo + xl, zo:zo + zl])  # Height Map is Offset by 1
         elif fill_mode == 'ab':
             by = 0
-
+        print(xl, zl)
         for x, z in loop2d(0, 0, xl, zl):  # Loop2D is [inclusive, inclusive]
             if fill_mode == 'rm':
-                by = np.min(self._height_map[max(xo, xo + x - nn):min(xo + xl, xo + x + nn), max(zo, zo + z - nn):min(zo + zl, zo + z + nn)]) - 1  # Height Map is Offset by 1
+                by = np.min(self._height_map[max(xo, xo + x - nn):min(xo + xl, xo + x + nn), max(zo, zo + z - nn):min(zo + zl, zo + z + nn)])  # Height Map is Offset by 1
             ty = self._height_map[xo + x, zo + z]
-            for y in range(by, ty):
-                hc = self._get_hex_color(world_slice, x1 + x, y, z1 + z)
-                if hc == 0x000000:
+            for y in range(by, ty + 1):  # We want to include the top index, not exclude
+                blockID = world_slice.get_block_id_at(x1 + x, y, z1 + z)
+                if blockID in ('minecraft:air', 'minecraft:cave_air'):
                     continue
-                material = MaterialRecord()
-                material.albedo_img = join('block_assets', 'stone.png')
+                if blockID not in IDENTIFIER_TO_TEXTURES and blockID not in SIMPLE_TEXTURES:
+                    print(blockID, 'not textured')
+                    continue
 
-                rgbc = self.bgr_hex_to_float_rgb(hc)
-                cube = o3d.geometry.TriangleMesh.create_box(width=1, height=1, depth=1)
-                # cube.paint_uniform_color(rgbc)
-                cube.translate([x + x * xs, y + y * ys, z + z * zs], relative=False)
-                self._render_3d.append((cube, material))
+                cube = self._render_cube(blockID, x + x * xs, y + y * ys, z + z * zs)
+
+                self._render_3d.append(cube)
         return self
 
     def show_3d_render(self):
@@ -240,40 +284,11 @@ class Renderer:
             blockID = template.get_block(x, y, z)
             if blockID is None:
                 continue
-            nbt = {}
-            if '[' in blockID:
-                blockID, nbt_data = blockID[:-1].split('[')
-                for nbt_value in nbt_data.split(','):
-                    k, v = nbt_value.split('=')
-                    nbt[k] = v
-            # hex_color = self._get_hex_color_for_id(blockID)
-            # rgbc = self.bgr_hex_to_float_rgb(hex_color)
-            if blockID not in IDENTIFIER_TO_TEXTURES:
+            if blockID not in IDENTIFIER_TO_TEXTURES and blockID not in SIMPLE_TEXTURES:
                 print(blockID, 'not textured')
                 continue
 
-            texture_data = IDENTIFIER_TO_TEXTURES[blockID]
-            cube = o3d.geometry.TriangleMesh.create_box(*texture_data['size'], True, True)
-
-            cube.textures = [o3d.io.read_image(join('block_assets', image_source)) for image_source in texture_data['textures']]
-
-            cube.triangle_material_ids = o3d.utility.IntVector(texture_data['texture_ids'])
-            cube.compute_vertex_normals()
-
-            cx, cy, cz = x + x * xs, y + y * ys, z + z * zs
-            cube.translate([cx, cy, cz], relative=False)
-
-            if 'translate' in texture_data:
-                cube.translate(texture_data['translate'])
-
-            # Do NBT data
-            for k, v in nbt.items():
-                if k in texture_data:
-                    for operation, values in texture_data[k][v].items():
-                        if operation == 'rotation':
-                            cube.rotate(cube.get_rotation_matrix_from_xyz(values), center=(cx, cy, cz))
-                        elif operation == 'translate':
-                            cube.translate(values)
+            cube = self._render_cube(blockID, x + x * xs, y + y * ys, z + z * zs)
 
             self._render_3d.append(cube)
         return self

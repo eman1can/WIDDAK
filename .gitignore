@@ -1,6 +1,7 @@
 # Our Files
 renders/
 worlds/
+past-code/
 
 # IDE Files
 .idea
@@ -138,3 +139,4 @@ dmypy.json
 .pyre/
 
 gdpc/
+past-code

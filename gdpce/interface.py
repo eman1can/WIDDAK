@@ -6,21 +6,19 @@ __author__    = "Arthur van der Staaij"
 __copyright__ = "Copyright 2022, Arthur van der Staaij"
 __licence__   = "MIT"
 
-import traceback
 from typing import Union, Optional, List
 from contextlib import contextmanager
 from copy import copy, deepcopy
 import random
-import time
 from concurrent import futures
 from glm import ivec3
 
-from gdpce.utils.util import isign, stdoutToStderr, eprint
+from gdpc_source.gdpc.util import isign, stdoutToStderr
 
 with stdoutToStderr():  # GDPC outputting to stdout on import messes with some scripts
     from gdpc_source.gdpc import interface, direct_interface, worldLoader
 
-from gdpce.vector_util import scaleToFlip3D, Rect, boxBetween
+from gdpc_source.gdpc.vector_util import scaleToFlip3D, Rect, boxBetween
 from gdpce.transform import Transform, toTransform
 from gdpce.block import Block
 
@@ -32,22 +30,13 @@ def getBuildArea():
     return boxBetween(ivec3(beginX, beginY, beginZ), ivec3(endX, endY, endZ))
 
 
-def getWorldSlice(rect: Rect):
+def getWorldSlice(rect: Rect, dat_file=None):
     """ Returns a gdpc WorldSlice of the region specified by [rect] """
-    assert isinstance(rect, Rect) # To protect from calling this with a Box
-    attempts = 0
-    while True:
-        try:
-            attempts += 1
-            return worldLoader.WorldSlice(rect.begin[0], rect.begin[1], rect.end[0], rect.end[1])
-        except Exception as e:  # pylint: disable=broad-except
-            if attempts < 10:
-                print(traceback.format_exc())
-                eprint("Could not get the world slice. Try reducing your render distance. I'll retry in a bit.")
-                time.sleep(2)
-            else:
-                eprint("OK, that's enough retries. You deal with the exception.")
-                raise
+    assert isinstance(rect, Rect)  # To protect from calling this with a Box
+    if dat_file is None:
+        return worldLoader.WorldSlice.from_server(rect)
+    else:
+        return worldLoader.WorldSlice.from_file(dat_file, rect)
 
 
 def runCommand(command: str):
@@ -85,7 +74,7 @@ class Interface:
         self.transform = Transform() if transformOrVec is None else toTransform(transformOrVec)
         self.gdpcInterface = interface.Interface(
             buffering   = buffering,
-            bufferlimit = bufferLimit + 1, # +1 so we can intercept the buffer flushes
+            bufferlimit = bufferLimit + 1,  # +1 so we can intercept the buffer flushes
             caching     = caching,
             cachelimit  = cacheLimit
         )
@@ -94,7 +83,6 @@ class Interface:
         self.multithreading = multithreading # Creates the buffer flush executor if True
         self._bufferFlushFutures: List[futures.Future] = []
         self._command_buffer:     List[str]            = []
-
 
     def __del__(self):
         """ Cleans up this Interface instance """
@@ -270,9 +258,7 @@ class Interface:
             # Empty the buffers (the thread has copies of the references)
             self.gdpcInterface.buffer = []
             self._command_buffer     = []
-
-        else: # No multithreading
-
+        else:  # No multithreading
             with stdoutToStderr():
                 self.gdpcInterface.sendBlocks(retries=retries)
             for command in self._command_buffer:

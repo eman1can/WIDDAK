@@ -45,6 +45,7 @@ class Template:
         self._base_bi = base_bi
         self._variation = var_ix
         self._data = data
+
         yl = len(data)
         xl = len(data[0])
         zl = len(data[0][0])

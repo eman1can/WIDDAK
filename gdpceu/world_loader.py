@@ -4,7 +4,7 @@ from os.path import join
 from glm import ivec2
 
 from gdpc_source.gdpc.worldLoader import WorldSlice
-from gdpce.vector_util import Rect
+from gdpc_source.gdpc.vector_util import Rect
 
 
 class World:

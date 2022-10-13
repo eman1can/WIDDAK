@@ -6,6 +6,17 @@ __author__    = "Ethan Wolfe"
 __copyright__ = "Copyright 2022, Ethan Wolfe"
 __licence__   = "MIT"
 
+from os import getcwd, environ
+from os.path import split
+
+from gdpceu.template import Template
+
+script_path = getcwd()
+while not script_path.endswith('WIDDAK'):
+    script_path = split(script_path)[0]
+if script_path + ';' not in environ['PYTHONPATH']:
+    environ['PYTHONPATH'] += script_path + ';'
+
 import cv2
 
 import numpy as np
@@ -16,30 +27,51 @@ from os import listdir, mkdir
 from os.path import exists, join
 
 from PIL import Image as PILImage
-from gdpc_source.gdpc import lookup
-from gdpc_source.gdpc.toolbox import loop2d
-from gdpc_source.gdpc.worldLoader import WorldSlice
+from gdpc_source.gdpc import Rect, loop2d, lookup, loop3d
+from gdpc_source.gdpc.nbt import NBTFile
 
 from gdpce.interface import getWorldSlice
-from gdpce.geometry import Rect
 
-from gdpceu.renderer import Renderer
+from gdpceu.renderer import Renderer, SIMPLE_TEXTURES
 from gdpceu.world_loader import SavedWorldSlice, World, WorldSlice
 
 from gdpceu.vox import VoxFile
 
+from itertools import chain, product
+from math import ceil, sqrt, pow
+
 renderer = Renderer()
 renderer.set_default_viewer()
 
-vox_dir = join('blueprints', 'vox')
-for vox_name in listdir(vox_dir):
-    vox_file = VoxFile(join(vox_dir, vox_name))
-    vox_file.read()
-    vox_file.close()
+# print(ceil(pow(len(SIMPLE_TEXTURES), 1/3)))
+#
+# palette_size = ceil(pow(len(SIMPLE_TEXTURES), 1/3))
+# template_data = [[[None for _ in range(palette_size)] for _ in range(palette_size)] for _ in range(palette_size)]
+#
+# for ix, (x, y, z) in enumerate(loop3d(palette_size, palette_size, palette_size)):
+#     if ix >= len(SIMPLE_TEXTURES):
+#         continue
+#     blockID = SIMPLE_TEXTURES[ix]
+#     template_data[y][x][z] = blockID
+# renderer.make_3d_template_render(Template('Block Palette', 0, 0, template_data), xs=1, zs=1)
+# renderer.show_3d_render()
+rect = Rect.from_corners(0, 0, 128, 128)
+world_slice = getWorldSlice(rect)
+renderer.make_3d_render(rect, world_slice, fill_mode='rm')
+renderer.show_3d_render()
+renderer.make_2d_render(rect, world_slice)
+renderer.show_2d_render()
+exit(0)
 
-    model = vox_file.get_model()
-
-    renderer.make_3d_vox_render(model, vox_file.get_color_palette()).show_3d_render()
+# vox_dir = join('blueprints', 'vox')
+# for vox_name in listdir(vox_dir):
+#     vox_file = VoxFile(join(vox_dir, vox_name))
+#     vox_file.read()
+#     vox_file.close()
+#
+#     model = vox_file.get_model()
+#
+#     renderer.make_3d_vox_render(model, vox_file.get_color_palette()).show_3d_render()
 
 
 # template = [
