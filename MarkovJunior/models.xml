@@ -9,7 +9,7 @@
 
 	<model name="Backtracker" size="89"/> --><!--Just using these as file seperaters-->
 	
-	<model name="Apartemazements" length="8" width="8" height="8" amount="3"/>
+<!--	<model name="Apartemazements" length="8" width="8" height="8" amount="3"/>-->
 	<!-- <model name="CarmaTower" length="8" width="8" height="8" amount="10"/> -->
 	<!-- <model name="SeaVilla" length="8" width="8" height="8" amount="10"/> -->
 	<!--<model name="ModernHouse" length="8" width="8" height="8" amount="4"/>-->
@@ -34,8 +34,16 @@
 	<model name="ModernHouse" length="20" width="20" height="20" amount="4"/>-->
   <!--END of for Adam's Architecture Studio class-->
 	
-	
-  <!--<model name="Apartemazements" size="8" d="3" amount="4"/>-->
+<!--	Learning how Apartmazements works-->
+<!--  <model name="TestingApt1" size="8" d="3" amount="1"/>-->
+<!--  <model name="TestingApt1" size="10" d="3" amount="1"/>-->
+<!--  <model name="TestingApt1" length="10" width="8" height="8" amount="2"/>-->
+
+<!--  odd number for length and width-->
+    <model name="TreeV2" length="9" width="9" height="12" amount="4"/>
+<!--<model name="SeaVilla" length="6" width="6" height="6" amount="4"/>-->
+
+
   <!--<model name="Apartemazements" size="8" d="3" iso="True" pixelsize="6" gui="150"/>-->
   <!--<model name="CarmaTower" length="12" width="12" height="18"/>
   <model name="CarmaTower" length="12" width="12" height="18" iso="True" amount="1"/>-->
