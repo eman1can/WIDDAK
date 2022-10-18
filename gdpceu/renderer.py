@@ -116,16 +116,13 @@ class Renderer:
     def make_2d_render(self, rect, world_slice, color_map=None):
         self._setup_render(world_slice, color_map)
         self._render_2d = np.zeros((*rect.size, 3), dtype=np.uint8)
-
         for xix, x in enumerate(range(rect.x1, rect.x2)):
             rx = x - rect.x1
-            xix %= 16
             for zix, z in enumerate(range(rect.z1, rect.z2)):
-                zix %= 16
                 y = self._height_map[rx, z - rect.z1]
                 hc = self._get_hex_color(world_slice, x, y, z)
-                self._render_2d[xix, zix] = self.hex_to_int_rgb(hc)
-        print(self._colors)
+                # print(xix, zix, hc)
+                self._render_2d[zix, xix] = self.hex_to_int_rgb(hc)
         return self
 
     def show_2d_render(self):

@@ -1,5 +1,5 @@
 <models>
-	
+	<model name="EthanTree" length="20" width="20" height="20" amount="1"/>
   <!--For Adam's Architecture Studio class-->
 
 	<!--<model name="ModernHouse" length="6" width="6" height="6" amount="4"/>
@@ -9,7 +9,7 @@
 
 	<model name="Backtracker" size="89"/> --><!--Just using these as file seperaters-->
 	
-	<model name="Apartemazements" length="8" width="8" height="8" amount="3"/>
+    <!--<model name="Apartemazements" length="8" width="8" height="8" amount="3"/>-->
 	<!-- <model name="CarmaTower" length="8" width="8" height="8" amount="10"/> -->
 	<!-- <model name="SeaVilla" length="8" width="8" height="8" amount="10"/> -->
 	<!--<model name="ModernHouse" length="8" width="8" height="8" amount="4"/>-->
@@ -211,7 +211,6 @@
   <!--<model name="SokobanLevel2" length="5" width="4" amount="1" pixelsize="21" gif="True"/>-->
   <!--<model name="SequentialSokoban" size="20" gif="True"/>-->
 
-  benchmarks
   <!--<model name="MazeGrowth" size="967" amount="20" pixelsize="1" steps="200000"/> 1.7-->
   <!--<model name="ParallelMazeGrowth" size="967" amount="20" pixelsize="1"/> 2.0-->
   <!--<model name="MazeBacktracker" size="967" amount="20" pixelsize="1" steps="200000"/> 2.3-->

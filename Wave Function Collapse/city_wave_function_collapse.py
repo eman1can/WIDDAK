@@ -1,4 +1,4 @@
-import random
+from random import shuffle, choices
 from itertools import product
 from os import mkdir
 from os.path import exists, join
@@ -161,10 +161,10 @@ def get_tile(rules, surr, freqs, curr_freqs):
             for ix in range(len(rules)):
                 if a[ix] == 0 or b[ix] == 0:
                     continue
-                weights[ix] = a[ix] + b[ix]
+                weights[ix] = (a[ix] + b[ix]) ** 0.2
         if np.sum(weights) > 0:
-            return random.choices(range(len(rules)), weights=weights)[0]
-    return -2
+            return choices(range(len(rules)), weights=weights)[0]
+    return -1
 
 
 def WFC_create_rules(inp):
@@ -223,7 +223,7 @@ def AddToQueue(q, y, x):
         return
     if x > WIDTH or y > HEIGHT:
         return
-    q.add((y, x))
+    q.append((y, x))
 
 
 def WFC_collapse_rules(res, rules, freqs, freqses, resses):
@@ -235,20 +235,28 @@ def WFC_collapse_rules(res, rules, freqs, freqses, resses):
     res[cy][cx] = SEED
     curr_freqs[SEED] += (1 / (HEIGHT * WIDTH))
 
-    for sx in range(0, 8):
-        AddToQueue(q, cy + DY[sx], cx + DX[sx])
+    p = []
+    for sx in [LEFT, RIGHT, UP, DOWN]:
+        AddToQueue(p, cy + DY[sx], cx + DX[sx])
+    shuffle(p)
+    for sp in p:
+        q.add(sp)
 
     surr = np.full(8, -1, dtype=np.int32)
     while len(q) != 0:
         y, x = q.pop()
 
+        p = []
         for sx in range(0, 8):
             dx, dy = DX[sx], DY[sx]
             tile = res[y + dy][x + dx]
             if tile == -1:
-                AddToQueue(q, y + dy, x + dx)
+                AddToQueue(p, y + dy, x + dx)
             else:
                 surr[sx] = tile
+        shuffle(p)
+        for sp in p:
+            q.add(sp)
 
         res[y][x] = get_tile(rules, surr, freqs, curr_freqs)
 
@@ -256,9 +264,13 @@ def WFC_collapse_rules(res, rules, freqs, freqses, resses):
             failures -= 1
             if (failures == 0 or ((HEIGHT // 2) - 3 < y < (HEIGHT // 2) + 3 and (WIDTH // 2) - 3 < x < (WIDTH // 2) + 3)):
                 return False
+            p = []
             for i in range(max(0, y - 1), min(HEIGHT, y + 1)):
                 for j in range(max(0, x - 1), min(WIDTH, x + 1)):
-                    q.add((i, j))
+                    p.append((i, j))
+            shuffle(p)
+            for sp in p:
+                q.add(sp)
         else:
             curr_freqs[res[y][x]] += (1 / (HEIGHT * WIDTH))
         save_arr(res)
