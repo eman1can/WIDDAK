@@ -1,0 +1,18 @@
+<sequence values="BWN" symmetry="(xy)" folder = "ModernHouseMOD2">
+
+<!--        TODO - You need to know which one is which coming in, so that the order is correct. Otherwise void blocks and non-void blocks (or any color) will get swapped around.-->
+        <one fin = "EmptyModernHouse" inlegend = "B" fout = "ModernHouseMOD1_onecolor" outlegend = "WB"/>
+
+        <one fin = "corner" inlegend = "BW" fout = "corner_new" outlegend="BW"/>
+
+<!--        <one in = "*********/*********/*********/*********/*********/*********/*********/*********/********* *********/*********/*********/*********/*********/*********/*********/*********/********* *********/*********/*********/*********/*********/*********/*********/*********/********* *********/*********/*********/*********/*********/*********/*********/*********/*********"-->
+<!--             fout = "Test1" legend = "BW" steps = "1"/>-->
+
+
+
+<!--    <map scale="9 9 4"  values = "BW" outputValues= "BW" folder = "ModernHouseMOD2" regular="False">-->
+<!--         -->
+
+<!--     </map>-->
+
+</sequence>
