@@ -34,6 +34,9 @@ DL = 5
 DOWN = 6
 DR = 7
 
+DX = [-1, 0, 1, -1, 1, -1, 0, 1]
+DY = [1, 1, 1, 0, 0, -1, -1, -1]
+
 # EXAMPLE = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],\
 #             [0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 0],\
 #             [0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 0],\
@@ -60,26 +63,26 @@ DR = 7
 #             [8, 3, 3, 3, 5, 5, 5, 5, 5, 5, 2, 2],\
 #             [8, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],\
 #             [8, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3]]
-EXAMPLE = [[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],\
-           [ 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],\
-           [ 0, 0, 0, 0, 0, 0, 0, 3, 4, 4, 11,2, 4, 3, 11,1, 3, 4, 1, 1, 0, 0, 0, 0],\
-           [ 0, 0, 0, 0, 0, 0, 3, 2, 4, 11,2, 2, 2, 2, 2, 3, 4, 4, 5, 1, 10,0, 0, 0],\
-           [ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 12,11,11,3, 2, 2, 5, 5, 5, 5, 12,0, 0, 0],\
-           [ 0, 0, 0, 0, 0, 3, 7, 7, 8, 8, 8, 8, 7, 7, 7, 5, 5, 5, 5, 5, 12,0, 0, 0],\
-           [ 0, 0, 0, 0, 0, 7, 7, 7, 8, 8, 8, 8, 7, 11,11,11,11,1, 1, 1, 1, 0, 0, 0],\
-           [ 0, 0, 0, 9, 9, 4, 4, 8, 8, 8, 8, 8, 11,11,6, 11,11,12,1, 1, 1, 0, 0, 0],\
-           [ 0, 0, 0, 9, 3, 3, 4, 12,11,11,11,11,3, 2, 6, 2, 12,12,12,1, 0, 0, 0, 0],\
-           [ 0, 0, 0, 9, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 12,12,12,1, 0, 0, 0, 0],\
-           [ 0, 0, 1, 9, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 2, 12,12,12,0, 0, 0, 0, 0],\
-           [ 0, 0, 1, 9, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2, 12,12,12,0, 0, 0, 0, 0],\
-           [ 0, 0, 2, 9, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2, 12,12,12,0, 0, 0, 0, 0],\
-           [ 0, 0, 2, 9, 4, 2, 2, 2, 2, 3, 3, 3, 3, 11,11,3, 2, 1, 1, 1, 0, 0, 0, 0],\
-           [ 0, 0, 2, 4, 10,4, 2, 3, 2, 3, 2, 9, 2, 2, 11,11,2, 1, 1, 1, 0, 0, 0, 0],\
-           [ 0, 0, 2, 10,4, 2, 12,3, 2, 9, 12,2, 2, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0],\
-           [ 0, 0, 2, 4, 4, 2, 2, 3, 9, 9, 12,2, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],\
-           [ 0, 0, 2, 2, 1, 0, 12,1, 12,9, 9, 2, 0, 0, 1, 12,12,2, 0, 0, 0, 0, 0, 0],\
-           [ 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],\
-           [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
+EXAMPLE = np.array(
+           [[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+           [ 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
+           [ 0, 0, 0, 0, 0, 0, 0, 3, 4, 4, 11,2, 4, 3, 11,1, 3, 4, 1, 1, 0, 0, 0, 0],
+           [ 0, 0, 0, 0, 0, 0, 3, 2, 4, 11,2, 2, 2, 2, 2, 3, 4, 4, 5, 1, 10,0, 0, 0],
+           [ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 12,11,11,3, 2, 2, 5, 5, 5, 5, 12,0, 0, 0],
+           [ 0, 0, 0, 0, 0, 3, 7, 7, 8, 8, 8, 8, 7, 7, 7, 5, 5, 5, 5, 5, 12,0, 0, 0],
+           [ 0, 0, 0, 0, 0, 7, 7, 7, 8, 8, 8, 8, 7, 11,11,11,11,1, 1, 1, 1, 0, 0, 0],
+           [ 0, 0, 0, 9, 9, 4, 4, 8, 8, 8, 8, 8, 11,11,6, 11,11,12,1, 1, 1, 0, 0, 0],
+           [ 0, 0, 0, 9, 3, 3, 4, 12,11,11,11,11,3, 2, 6, 2, 12,12,12,1, 0, 0, 0, 0],
+           [ 0, 0, 1, 9, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 2, 12,12,12,0, 0, 0, 0, 0],
+           [ 0, 0, 1, 9, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2, 12,12,12,0, 0, 0, 0, 0],
+           [ 0, 0, 2, 9, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2, 12,12,12,0, 0, 0, 0, 0],
+           [ 0, 0, 2, 9, 4, 2, 2, 2, 2, 3, 3, 3, 3, 11,11,3, 2, 1, 1, 1, 0, 0, 0, 0],
+           [ 0, 0, 2, 4, 10,4, 2, 3, 2, 3, 2, 9, 2, 2, 11,11,2, 1, 1, 1, 0, 0, 0, 0],
+           [ 0, 0, 2, 10,4, 2, 12,3, 2, 9, 12,2, 2, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0],
+           [ 0, 0, 2, 4, 4, 2, 2, 3, 9, 9, 12,2, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
+           [ 0, 0, 2, 2, 1, 0, 12,1, 12,9, 9, 2, 0, 0, 1, 12,12,2, 0, 0, 0, 0, 0, 0],
+           [ 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
+           [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], np.uint8)
 
 def show_arr(res, rules):
 
@@ -133,44 +136,20 @@ def intersect_lists(ls0, ls1):
             res[i] = ls0[i] + ls1[i]
     return res
 
-def get_tile(rules, surr, freqs, curr_freqs):
-    res = np.full(len(rules), -1, dtype = np.int32)
-    total = 0
-    choice = 0
-    maxi = max(surr)
-    i = 0
-    if surr[UL] != -1:
-        res = intersect_lists(res, rules[surr[UL]][DR])
-    if surr[UP] != -1:
-        res = intersect_lists(res, rules[surr[UP]][DOWN])
-    if surr[UR] != -1:
-        res = intersect_lists(res, rules[surr[UR]][DL])
-    if surr[LEFT] != -1:
-        res = intersect_lists(res, rules[surr[LEFT]][RIGHT])
-    if surr[RIGHT] != -1:
-        res = intersect_lists(res, rules[surr[RIGHT]][LEFT])
-    if surr[DL] != -1:
-        res = intersect_lists(res, rules[surr[DL]][UR])
-    if surr[DOWN] != -1:
-        res = intersect_lists(res, rules[surr[DOWN]][UP])
-    if surr[DR] != -1:
-        res = intersect_lists(res, rules[surr[DR]][UL])
-    if np.sum(res) != 0:
-        return random.choices(range(len(rules)), weights = res)[0]
-    return -1
-    for i in range(len(res)):
-        #if i > maxi:
-        #    res[i] = 0
-        #res[i] = max(0, (int)(res[i] * ((freqs[i] * 1.5) - curr_freqs[i])))
-        total += res[i]
-    if total <= 0:
-        return -1
-    i = -1
-    choice = random.randint(1, total)
-    while choice > 0:
-        i += 1
-        choice -= res[i]
-    return i
+def get_tile(rules, surr, zeroed):
+    res = None
+    copied = False
+    for tile_type in range(8):
+        tile = surr[tile_type]
+        if tile == -1:
+            continue
+        other = rules[tile][DR - tile_type]
+        if not copied:
+            res = np.array(other, copy=True)
+            copied = True
+        else:
+            res = np.where(np.logical_and(res != 0, other != 0), res + other, zeroed)
+    return random.choices(range(len(rules)), weights=np.abs(res) + 1)[0]
 
 def WFC_create_rules(inp):
     h = len(inp)
@@ -295,7 +274,7 @@ def WFC_collapse_rules(res, rules, freqs, freqses, resses):
                 q.add((y-1, x))
             elif res[y-1][x] >= 0:
                 surr[DOWN] = res[y-1][x]
-        res[y][x] = get_tile(rules, surr, freqs, curr_freqs)
+        res[y][x] = get_tile(rules, surr, np.zeros(rules.shape[0]))
         if res[y][x] == -1:
             failures -= 1
             if (failures == 0 or ((HEIGHT // 2) - 3 < y < (HEIGHT // 2) + 3 and (WIDTH // 2) - 3 < x < (WIDTH // 2) + 3)):
@@ -326,204 +305,47 @@ def get_error(ls, freqs):
         err += (ls[f] - freqs[f]) ** 2
     return err
 
-thing = False
-rules = WFC_create_rules(EXAMPLE)
-for r in rules:
-    print(r)
-freqs = WFC_create_freqs(EXAMPLE, rules)
-freqses = [0.0, 0.0]
-resses = [[], []]
-errs = []
-least = 1.0
-start = time_ns()
-while least > 0.05:
+def WFC_Cleanup(output):
+    farmland = [(0, 0)]
+    q = set()
+    q.add((0, 0))
+    while len(q) > 0:
+        y, x = q.pop()
+        if x < 0 or y < 0 or y >= len(output) - 1 or x >= len(output[0]) - 1:
+            continue
+        for sx in [LEFT, RIGHT, UP, DOWN]:
+            if output[y + DY[sx], x + DX[sx]] == 0:
+                q.add((y + DY[sx], x + DX[sx]))
+                farmland.append((y, x))
+    for iy, y in enumerate(output):
+        for ix, x in enumerate(y):
+            if x == 0 and ((iy, ix) not in farmland):
+                output[iy, ix] = 1  # Change to low residential
+    return output
+
+def collapse_this():
     thing = False
-    while(not thing):
-        res = get_environment()
-        thing = WFC_collapse_rules(res, rules, freqs, freqses, resses)
-    attempt = get_error(freqses[1], freqs)
-    if len(resses[0]) == 0:
-        least = attempt
-        resses[0] = resses[1]
-    elif (attempt < least):
-        least = attempt
-        resses[0] = resses[1]
-        print("\nNEW")
-print((time_ns() - start) / 1000000)
-show_arr(resses[0], rules)
+    rules = WFC_create_rules(EXAMPLE)
+    freqs = WFC_create_freqs(EXAMPLE, rules)
+    freqses = [0.0, 0.0]
+    resses = [[], []]
+    errs = []
+    least = 1.0
+    start = time_ns()
+    while least > 0.3:#0.03
+        thing = False
+        while (not thing):
+            res = get_environment()
+            thing = WFC_collapse_rules(res, rules, freqs, freqses, resses)
+        print("bui")
+        attempt = get_error(freqses[1], freqs)
+        if attempt < least:
+            least = attempt
+            resses[0] = resses[1]
+            print("\nFINISH")
+    print((time_ns() - start) / 1000000)
+    show_arr(resses[0], rules)
+    resses[0] = WFC_Cleanup(resses[0])
+    show_arr(resses[0], rules)
 
-
-#TITLE: Old Code
-
-
-# TYPES = 5
-
-# def show_arr(ls):
-#     for i in ls:
-#         for j in i:
-#             if (j == -1):
-#                 print(" ", end='')
-#             #elif (j == 0):
-#             #    print("..", end='')
-#             #elif (j == 1):
-#             #    print("::", end='')
-#             #elif (j == 2):
-#             #    print(";;", end='')
-#             #elif (j == 3):
-#             #    print("ii", end='')
-#             #elif (j == 4):
-#             #    print("ll", end='')
-#             #elif (j == 5):
-#             #    print("||", end='')
-#             #elif (j == 6):
-#             #    print("II", end='')
-#             #elif (j == 7):
-#             #    print("EE", end='')
-#             #elif (j == 8):
-#             #    print("##", end='')
-#             #elif (j == 9):
-#             #    print("██", end='')
-#             else:
-#                 print(j, end=', ')
-#         print()
-#     print("*********************")
-
-# RULE_TUPLES = [[(0, 1.0)],
-# [(0, 0.5), (1, 1.0)],
-# [(1, 0.5), (2, 1.0)],
-# [(2, 0.5), (3, 1.0)],
-# [(3, 0.5), (4, 1.0)],
-# [(4, 0.5), (5, 1.0)]]
-
-# def display_env(env):
-#     for i in env:
-#         for j in i:
-#             if (j == len(RULE_TUPLES) - 1):
-#                 print('██', end='')
-#             elif (j == len(RULE_TUPLES) - 2):
-#                 print('##', end='')
-#             elif (j == len(RULE_TUPLES) - 3):
-#                 print('XX', end='')
-#             elif (j == len(RULE_TUPLES) - 4):
-#                 print('++', end='')
-#             elif (j == len(RULE_TUPLES) - 5):
-#                 print('--', end='')
-#             elif (j == len(RULE_TUPLES) - 6):
-#                 print('  ', end='')
-#             elif (j == len(RULE_TUPLES) - 7):
-#                 print('//', end='')
-#         print()
-
-# def wave_function_collapse_0():
-#     env = [[[range(TYPES)] for _ in range(WIDTH)] for _ in range(HEIGHT)]
-#     q = [(round(len(env) / 2), round(len(env[0]) / 2))]
-#     first = True
-#     while (len(q) > 0):
-#         y = q[0][0]
-#         x = q[0][1]
-#         if (type(env[y][x]) == list and x != 0 and x != WIDTH - 1 and y != 0 and y != HEIGHT - 1):
-#             env[y][x] = random.choice(env[y][x])
-#             if (type(env[y+1][x]) == list):
-#                 if (env[y+1][x][0] < env[y][x] - 1):
-#                     env[y+1][x] = range(env[y][x] - 1, min(env[y][x] + 2, TYPES))
-#                 q.append((y+1, x))
-#             if (type(env[y-1][x]) == list):
-#                 if (env[y-1][x][0] < env[y][x] - 1):
-#                     env[y-1][x] = range(env[y][x] - 1, min(env[y][x] + 2, TYPES))
-#                 q.append((y-1, x))
-#             if (type(env[y][x+1]) == list):
-#                 if (env[y][x+1][0] < env[y][x] - 1):
-#                     env[y][x+1] = range(env[y][x] - 1, min(env[y][x] + 2, TYPES))
-#                 q.append((y, x+1))
-#             if (type(env[y][x-1]) == list):
-#                 if (env[y][x-1][0] < env[y][x] - 1):
-#                     env[y][x-1] = range(env[y][x] - 1, min(env[y][x] + 2, TYPES))
-#                 q.append((y, x-1))
-#             if (first):
-#                 first = False
-#                 env[y][x] = len(RULE_TUPLES) - 1
-#         q = q[1:]
-#     display_env(env)
-
-
-# def wave_function_collapse_1():
-#     env = [[-1 for _ in range(WIDTH)] for _ in range(HEIGHT)]
-#     q = [(round(len(env) / 2), round(len(env[0]) / 2))]
-#     first = True
-#     while (len(q) > 0):
-#         y = q[0][0]
-#         x = q[0][1]
-#         z = 0
-#         if (env[y][x] == -1 and x != 0 and x != WIDTH - 1 and y != 0 and y != HEIGHT - 1):
-#             if (env[y+1][x] == -1):
-#                 q.append((y+1, x))
-#             else:
-#                 z = max(z, env[y+1][x])
-#             if (env[y-1][x] == -1):
-#                 q.append((y-1, x))
-#             else:
-#                 z = max(z, env[y-1][x])
-#             if (env[y][x+1] == -1):
-#                 q.append((y, x+1))
-#             else:
-#                 z = max(z, env[y][x+1])
-#             if (env[y][x-1] == -1):
-#                 q.append((y, x-1))
-#             else:
-#                 z = max(z, env[y][x-1])
-#             if (first):
-#                 first = False
-#                 env[y][x] = len(RULE_TUPLES) - 1
-#             else:
-#                 r = random.random()
-#                 t = RULE_TUPLES[z]
-#                 s = 0
-#                 while (r > t[s][1]):
-#                     s += 1
-#                 env[y][x] = t[s][0]
-#         q = q[1:]
-#     display_env(env)
-
-# def wave_function_collapse_2():
-#     env = [[-1 for _ in range(WIDTH)] for _ in range(HEIGHT)]
-#     q = [(round(len(env) / 2), round(len(env[0]) / 2))]
-#     while (len(q) > 0):
-#         y = q[0][0]
-#         x = q[0][1]
-#         z = []
-#         if (env[y][x] == -1 and x != 0 and x != WIDTH - 1 and y != 0 and y != HEIGHT - 1):
-#             total = 4
-#             if (env[y+1][x] == -1):
-#                 total -= 1
-#                 q.append((y+1, x))
-#             else:
-#                 z.append(RULE_TUPLES[env[y+1][x]])
-#             if (env[y-1][x] == -1):
-#                 total -= 1
-#                 q.append((y-1, x))
-#             else:
-#                 z.append(RULE_TUPLES[env[y-1][x]])
-#             if (env[y][x+1] == -1):
-#                 total -= 1
-#                 q.append((y, x+1))
-#             else:
-#                 z.append(RULE_TUPLES[env[y][x+1]])
-#             if (env[y][x-1] == -1):
-#                 total -= 1
-#                 q.append((y, x-1))
-#             else:
-#                 z.append(RULE_TUPLES[env[y][x-1]])
-#             if (total == 0):
-#                 env[y][x] = len(RULE_TUPLES) - 1
-#             else:
-#                 r = random.random() * total
-#                 t = 0
-#                 s = 0
-#                 while r > 1:
-#                     t += 1
-#                     r -= 1
-#                 while (r > z[t][s][1]):
-#                     s += 1
-#                 env[y][x] = z[t][s][0]
-#         q = q[1:]
-#     display_env(env)
+collapse_this()
