@@ -1,7 +1,7 @@
 # Detect Minecraft Installation Location
 from os import getcwd, listdir, symlink, remove
 from os.path import exists, join
-from common import get_mincraft_location
+from gdpceu.common import get_minecraft_location
 
 save_location = join(get_minecraft_location(), 'saves')
 
