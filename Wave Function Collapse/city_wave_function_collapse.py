@@ -3,6 +3,7 @@ from itertools import product
 from os import mkdir
 from os.path import exists, join
 
+import sys
 import numpy as np
 from time import time_ns
 from PIL import Image, ImageShow
@@ -28,8 +29,10 @@ if platform == 'windows' and exists('C:/IrfanView/i_view64.exe'):
 viewer = PhotoViewer('C:/IrfanView/i_view64.exe', 'TIFF')
 ImageShow.register(viewer, 0)
 
-HEIGHT = 32
-WIDTH = 32
+np.set_printoptions(threshold=sys.maxsize)
+
+HEIGHT = 16
+WIDTH = 16
 SEED = 8
 
 UL    = 0
@@ -58,25 +61,13 @@ DY = [1, 1, 1, 0, 0, -1, -1, -1]
 #             [0, 8, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 0],\
 #             [0, 8, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 0],\
 #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
-# EXAMPLE = [[0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2],
-#             [0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2],
-#             [0, 0, 0, 0, 3, 4, 4, 5, 2, 4, 3, 5],
-#             [0, 0, 0, 3, 2, 4, 5, 2, 2, 2, 2, 2],
-#             [0, 0, 0, 1, 2, 3, 4, 5, 5, 3, 2, 2],
-#             [0, 0, 0, 1, 2, 3, 4, 5, 5, 3, 2, 2],
-#             [0, 0, 3, 6, 6, 7, 7, 7, 7, 6, 6, 6],
-#             [0, 0, 6, 6, 6, 7, 7, 7, 7, 6, 5, 5],
-#             [8, 8, 4, 4, 7, 7, 7, 5, 5, 5, 3, 3],
-#             [8, 3, 3, 3, 5, 5, 5, 5, 5, 5, 2, 2],
-#             [8, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
-#             [8, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3]]
 EXAMPLE = np.array(
            [[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
            [ 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
            [ 0, 0, 0, 0, 0, 0, 0, 3, 4, 4, 11,2, 4, 3, 11,1, 3, 4, 1, 1, 0, 0, 0, 0],
            [ 0, 0, 0, 0, 0, 0, 3, 2, 4, 11,2, 2, 2, 2, 2, 3, 4, 4, 5, 1, 10,0, 0, 0],
            [ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 12,11,11,3, 2, 2, 5, 5, 5, 5, 12,0, 0, 0],
-           [ 0, 0, 0, 0, 0, 3, 7, 7, 8, 8, 8, 8, 7, 7, 7, 5, 5, 5, 5, 5, 12,0, 0, 0],
+           [ 0, 0, 0, 0, 0, 3, 7, 7, 8, 8, 8, 8, 7, 7, 8, 5, 5, 5, 5, 5, 12,0, 0, 0],
            [ 0, 0, 0, 0, 0, 7, 7, 7, 8, 8, 8, 8, 7, 11,11,11,11,1, 1, 1, 1, 0, 0, 0],
            [ 0, 0, 0, 9, 9, 4, 4, 8, 8, 8, 8, 8, 11,11,6, 11,11,12,1, 1, 1, 0, 0, 0],
            [ 0, 0, 0, 9, 3, 3, 4, 12,11,11,11,11,3, 2, 6, 2, 12,12,12,1, 0, 0, 0, 0],
@@ -97,11 +88,10 @@ def get_image(res):
     colors = [
         [0xFF, 0x00, 0x00],  # -2
         [0x00, 0x00, 0x00],  # -1
-        [0x97, 0xB4, 0x86],  # 0
-        [0x97, 0xb4, 0x86],  # ...
-        [0xfe, 0xfe, 0xbe],
-        [0xfd, 0xff, 0x69],
-        [0xe4, 0x99, 0x00],
+        [0x97, 0xb4, 0x86],  # 0
+        [0xfe, 0xfe, 0xbe],  # 1
+        [0xfd, 0xff, 0x69],  # 2
+        [0xe4, 0x99, 0x00],  # 3...
         [0xa7, 0x70, 0x00],
         [0xfe, 0x81, 0x7d],
         [0xff, 0x69, 0x48],
@@ -136,15 +126,11 @@ def gen_gif():
 
 def intersect_lists(ls0, ls1):
     res = np.full(len(ls0), 0, dtype = np.int32)
-    if ls0[0] == -1:
-        return ls1
     for i in range(len(ls0)):
-        if ls0[i] == 0 or ls1[i] == 0:
-            res[i] = 0
-        else:
+        if ls0[i] != 0 and ls1[i] != 0:
             res[i] = ls0[i] + ls1[i]
     return res
-    
+
 def get_tile(rules, surr, zeroed):
     res = None
     copied = False
@@ -158,6 +144,8 @@ def get_tile(rules, surr, zeroed):
             copied = True
         else:
             res = np.where(np.logical_and(res != 0, other != 0), res + other, zeroed)
+    if res is None or np.sum(res) == 0:
+        return -1
     return random.choices(range(len(rules)), weights=np.abs(res) + 1)[0]
 
 def WFC_create_rules(inp):
@@ -168,7 +156,6 @@ def WFC_create_rules(inp):
 
     maxi = np.max(inp)
     rules = np.zeros((maxi + 1, 8, maxi + 1), np.int32)
-
     for x in range(w):
         for y in range(h):
             ix = inp[y][x]
@@ -192,12 +179,8 @@ def WFC_create_rules(inp):
         rule[DR] = temp
     for x in range(len(rules)):
         for y in range(len(rules[x])):
-            #total = 0
             for z in range(len(rules[x][y])):
-                rules[x][y][z] = rules[x][y][z]
-            #    total += rules[x][y][z]
-            #for z in range(len(rules[x][y])):
-            #    rules[x][y][z] /= total
+                rules[x][y][z] = rules[x][y][z]**2
     return rules
 
 def get_environment():
@@ -210,14 +193,12 @@ def get_environment():
         res[i][WIDTH - 1] = 0
     return res
 
-
 def AddToQueue(q, y, x):
     if x < 0 or y < 0:
         return
     if x > WIDTH or y > HEIGHT:
         return
     q.add((y, x))
-
 
 def WFC_collapse_rules(res, rules, freqs, freqses, resses):
     failures = 50
@@ -309,17 +290,26 @@ def get_error(ls, freqs):
     return err
 
 def WFC_Cleanup(output):
-    farmland = [(0, 0)]
+    farmland = set()
     q = set()
-    q.add((0, 0))
+    for i in range(WIDTH):
+        q.add((0, i))
+        q.add((HEIGHT - 1, i))
+        farmland.add((0, i))
+        farmland.add((HEIGHT - 1, i))
+    for i in range(HEIGHT):
+        q.add((i, 0))
+        q.add((i, WIDTH - 1))
+        farmland.add((i, 0))
+        farmland.add((i, WIDTH - 1))
     while len(q) > 0:
         y, x = q.pop()
-        if x < 0 or y < 0 or y >= len(output) - 1 or x >= len(output[0]) - 1:
+        if x < 0 or y < 0 or y >= HEIGHT or x >= WIDTH:
             continue
-        for sx in [LEFT, RIGHT, UP, DOWN]:
-            if output[y + DY[sx], x + DX[sx]] == 0:
+        for sx in [UP, LEFT, RIGHT, DOWN]:
+            if (y + DY[sx], x + DX[sx]) not in farmland and (0 < y + DY[sx] < HEIGHT and 0 < x + DX[sx] < WIDTH and output[y + DY[sx], x + DX[sx]] == 0):
                 q.add((y + DY[sx], x + DX[sx]))
-                farmland.append((y, x))
+                farmland.add((y + DY[sx], x + DX[sx]))
     for iy, y in enumerate(output):
         for ix, x in enumerate(y):
             if x == 0 and ((iy, ix) not in farmland):
@@ -335,21 +325,19 @@ def collapse_this():
     errs = []
     least = 1.0
     start = time_ns()
-    while least > 0.3:#0.03
+    while least > 0.02:
         thing = False
         while (not thing):
             res = get_environment()
             thing = WFC_collapse_rules(res, rules, freqs, freqses, resses)
-        print("bui")
         attempt = get_error(freqses[1], freqs)
         if attempt < least:
             least = attempt
             resses[0] = resses[1]
-            print("\nFINISH")
     print((time_ns() - start) / 1000000)
-    show_arr(resses[0], rules)
+    show_arr(resses[0])
     resses[0] = WFC_Cleanup(resses[0])
-    show_arr(resses[0], rules)
+    show_arr(resses[0])
 
 def WFC_print_rules(rules):
     for tile_types in rules:
