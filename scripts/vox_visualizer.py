@@ -1,16 +1,24 @@
-from os import listdir, mkdir
-from os.path import exists, join
+# Path Fixing Code - Must Be First
+from os import getcwd, environ, chdir, listdir, makedirs
+from os.path import split, join, exists
 
-from gdpceu.renderer import Renderer
-from gdpceu.vox import VoxFile
+script_path = getcwd()
+while not script_path.endswith('WIDDAK'):
+    script_path = split(script_path)[0]
+    chdir(script_path)
+if 'PYTHONPATH' in environ:
+    if script_path + ';' not in environ['PYTHONPATH']:
+        environ['PYTHONPATH'] += script_path + ';'
+else:
+    environ['PYTHONPATH'] = script_path
+# End Path Fixing Code
 
-renders_path = 'renders'
-if not exists(renders_path):
-    mkdir(renders_path)
+from gdpc.renderer import Renderer
+from src.vox import VoxFile
 
-vox_render_path = join(renders_path, 'vox')
+vox_render_path = join('local', 'renders', 'vox')
 if not exists(vox_render_path):
-    mkdir(vox_render_path)
+    makedirs(vox_render_path)
 
 renderer = Renderer()
 renderer.set_default_viewer()

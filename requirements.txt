@@ -4,7 +4,6 @@ charset-normalizer==2.1.1
 contourpy==1.0.5
 cycler==0.11.0
 fonttools==4.37.3
-idna==3.4
 kiwisolver==1.4.4
 matplotlib==3.5.0
 more-itertools==8.14.0
@@ -25,5 +24,13 @@ soupsieve==2.3.2.post1
 tomli==2.0.1
 typing_extensions==4.3.0
 urllib3==1.26.12
-open3d==0.15.2
+open3d~=0.15.1
 laspy==2.2.0
+DateTime~=4.7
+numba~=0.53.1
+scikit-learn~=1.0.2
+Kivy~=2.1.0
+scikit-image~=0.19.3
+argparse~=1.4.0
+pandas~=1.2.1
+bs4~=0.0.1
