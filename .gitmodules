@@ -1,0 +1,3 @@
+[submodule "nca"]
+	path = nca
+	url = https://github.com/abarbieu/slime_mold_nca.git
