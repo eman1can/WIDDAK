@@ -1,0 +1,4 @@
+F:/CodeProjects/CLionProjects/OpenGL/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+F:/CodeProjects/CLionProjects/OpenGL/cmake-build-debug/CMakeFiles/GLFWTest.dir
+F:/CodeProjects/CLionProjects/OpenGL/cmake-build-debug/CMakeFiles/edit_cache.dir
+F:/CodeProjects/CLionProjects/OpenGL/cmake-build-debug/CMakeFiles/VoxelRenderer.dir
