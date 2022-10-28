@@ -59,6 +59,11 @@ def placeBox(box: Box, block: Block, replace: Optional[Union[str, List[str]]] = 
                 itf.place(block, ivec3(x, y, z), replace)
 
 
+def placeCheckeredBox(box: Box, first: Block, second: Block = Block('minecraft:air'), replace: Optional[Union[str, List[str]]] = None, itf: Interface = gi):
+    for point in box:
+        itf.place(first if sum(point) % 2 == 0 else second, ivec3(*point), replace, itf)
+
+
 def placeLine(start: ivec3, end: ivec3, block: Block, replace: Optional[Union[str, List[str]]] = None, itf: Interface = gi):
     """ Draw a line from point to point efficiently """
     dim = getDimension(start, end)

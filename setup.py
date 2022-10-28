@@ -13,7 +13,7 @@ gb = mb * 1024
 tb = gb * 1024
 
 if free / gb < 10:
-    print('Sorry, I don\'t want to clig your machine. Override me.')
+    print('Sorry, I don\'t want to clog your machine. Override me.')
     exit(1)
 
 print(total / gb, used / gb, free / gb)
