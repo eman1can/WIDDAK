@@ -180,7 +180,7 @@ class WorldSlice:
         step = min(step, rect.dx // 2, rect.dz // 2)
 
         chunk_rect = rect // 16
-        chunk_count = chunk_rect.area // (step * step)
+        chunk_count = int(ceil(chunk_rect.area / (step * step)))
         start_time = time()
         print(f'Loading Slice Chunks (0 / {chunk_count})...')
         full_world_data = None
@@ -342,6 +342,13 @@ class WorldSlice:
         p.x -= self.rect.x1
         p.z -= self.rect.z1
         return p
+
+    def get_heightmap(self, heightmap_type: str):
+        """
+        Heightmaps are MOTION_BLOCKING, MOTION_BLOCKING_NO_LEAVES, OCEAN_FLOOR, WORLD_SURFACE
+        """
+        index = self.heightmap_types.index(heightmap_type)
+        return self.heightmaps[index]
 
     def get_relative_block_data_at(self, rp: ivec3) -> dict:
         """ Return block data from relative coordinates"""

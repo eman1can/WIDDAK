@@ -57,9 +57,7 @@ def placeBlock(point: ivec3, blockID, doBlockUpdates=True, flags=None):
 
     url = f'http://localhost:9000/blocks?x={point.x}&y={point.y}&z={point.z}&{queryParam}'
 
-    response = put(url, blockID).text
-    if not response.isnumeric():
-        print(f"{TCOLORS['orange']}Warning: Error placing block:\n\t{TCOLORS['CLR']}{response}")
+    response = put(url, blockID).text.strip()
     return response
 
 

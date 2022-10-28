@@ -15,6 +15,7 @@ __all__ = [
 
 import sys
 from collections import OrderedDict
+from copy import copy
 from itertools import product
 
 import numpy as np
@@ -165,13 +166,13 @@ class Interface:
         Can be used to create a local coordinate system on top of the current local coordinate system
         This is different from `Transform.push()`
         """
-        if transform is not None:
-            self.transform = self.transform.apply(toTransform(transform))
+        current = copy(self.transform)
         try:
+            if transform is not None:
+                self.transform = self.transform @ toTransform(transform)
             yield
         finally:
-            if transform is not None:
-                self.transform = self.transform.invApply(toTransform(transform))
+            self.transform = current
 
     def runCommand(self, command: str) -> str:
         """ Executes one or multiple Minecraft commands (separated by newlines).
@@ -305,9 +306,10 @@ class Interface:
             return self.sendBufferedBlocks()
         return '0'
 
-    def place(self, block: Block, t: Union[Transform, ivec3], replace: Optional[Union[str, Sequence[str]]], local: bool = False):
+    def place(self, block: Block, t: Union[Transform, ivec3], replace: Optional[Union[str, Sequence[str]]] = None, local: bool = False):
         if local:
             return self.place(block, self.transform @ toTransform(t), replace, False)
+        t = toTransform(t)
 
         blockState = block.blockStateString(t.rotation, scaleToFlip3D(t.scale))
         tr = t.translation
