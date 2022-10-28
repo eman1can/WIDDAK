@@ -44,7 +44,7 @@ def placeRect(rect: Rect, y: int, block: Block, replace: Optional[Union[str, Lis
             itf.place(block, ivec3(x, y, z), replace)
     else:
         for x, z in rect:
-            if x - rect.x1 <= width or z - rect.z1 <= width or rect.x2 - x <= width or rect.z2 - z <= width:
+            if x - rect.x1 < width or z - rect.z1 < width or rect.x2 - x <= width or rect.z2 - z <= width:
                 itf.place(block, ivec3(x, y, z), replace)
 
 

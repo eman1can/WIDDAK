@@ -18,6 +18,7 @@ __copyright__ = "Copyright 2022, Arthur van der Staaij"
 __licence__   = "MIT"
 
 # Path Fixing Code - Must Be First
+import sys
 from os import getcwd, environ, chdir
 from os.path import split
 
@@ -35,37 +36,16 @@ else:
 import numpy as np
 from glm import ivec2, ivec3, bvec3
 
-from gdpc.vector_util import addY, vecString, Rect, Box, centeredSubRect, rectSlice
-from gdpc.transform import Transform, rotatedBoxTransform, scaledBoxTransform, flippedBoxTransform
-from gdpc.nbt import NBTFile
+from gdpc.vector_util import addY, vecString, Rect, centeredSubRect, rectSlice
+from gdpc.util import eprint
 from gdpc.block import Block
 from gdpc.interface import Interface, getBuildArea, getWorldSlice
-from gdpc.geometry import placeBox, placeRectOutline, placeCheckeredBox
+from gdpc.geometry import placeRect
 import json
 
 
 CLEAR_AREA_RADIUS = 30
 CLEAR_AREA = ivec2(CLEAR_AREA_RADIUS, CLEAR_AREA_RADIUS)
-
-# Build a structure in the world
-def buildStructure(itf: Interface, structure: list, should_clear: True):
-    # print(structure)
-
-    # Clear the area
-    if (should_clear):
-        for i in range(CLEAR_AREA_RADIUS):
-            for j in range(CLEAR_AREA_RADIUS):
-                for k in range(CLEAR_AREA_RADIUS):
-                    itf.placeBlock(ivec3(i - CLEAR_AREA_RADIUS/2, j - CLEAR_AREA_RADIUS/2, k - CLEAR_AREA_RADIUS/2), Block("air"))
-
-    # Build the structure
-    for y in range(len(structure)):
-        for x in range(len(structure[y])):
-            for z in range(len(structure[y][x])):
-                if structure[y][x][z] != None:
-                    block = structure[y][x][z]
-                    block = block.replace('dirt_path', 'grass_path')
-                    itf.placeBlock(ivec3(x, y, z), Block(block))
 
 def main():
     # Get the build area
@@ -79,30 +59,37 @@ def main():
 
     # Get a world slice and a heightmap
     worldSlice = getWorldSlice(buildRect)
-    heightmap = worldSlice.heightmaps["MOTION_BLOCKING_NO_LEAVES"]
+    heightmap = worldSlice.get_heightmap("WORLD_SURFACE")
 
     # Create an Interface object with a transform that translates to the build rect
     itf = Interface(addY(buildRect.offset))
 
     # Place build area indicator
-    meanHeight = int(np.mean(heightmap))
-    placeRectOutline(itf, Rect(size=buildRect.size), meanHeight + 20, Block("red_concrete"))
+    maxHeight = int(np.max(heightmap))
+    placeRect(buildRect, maxHeight + 10, Block("orange_concrete"), width=1, itf=itf)
 
     # Build the example structure in the center of the build area, at the mean height.
-    rect = centeredSubRect(Rect(size=buildRect.size), CLEAR_AREA)
-    height = int(np.mean(rectSlice(heightmap, rect))) - 1
+    rect = centeredSubRect(buildRect, CLEAR_AREA)
+    height = int(np.max(rectSlice(heightmap, Rect(size=rect.size)))) - 1
 
-    # Load a blueprint template
-    f = open(f'blueprints/building_templates.json')
+    # # Load a blueprint template
+    f = open(f'sections/blueprints/building_templates.json')
     building_templates = json.load(f)
-    template_name = 'Plains_meeting_point_3_blueprint'
+    template = building_templates["1"]["Meeting Point"]["3"]
 
-    # Build the structure 
-    with itf.pushTransform(addY(rect.offset, height)):
-        buildStructure(itf, building_templates.get(template_name), should_clear=True)
+    # Changed to max height instead of clear area
+    with itf.pushTransform(addY(ivec2(0, 0), height)):
+        for iy, y in enumerate(template):
+            for iz, z in enumerate(y):
+                for ix, block in enumerate(z):
+                    if block is None:
+                        continue
+                    block = block.replace('dirt_path', 'grass_path')
+                    itf.place(Block(block), ivec3(ix, iy, iz), local=True)
 
     # Flush block buffer
     itf.sendBufferedBlocks()
+    itf.awaitBufferFlushes()
 
 
 if __name__ == "__main__":
