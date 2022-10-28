@@ -1,6 +1,7 @@
 from traceback import format_exc
 
 import numpy as np
+from glm import ivec3
 
 from .lookup import PALETTELOOKUP
 
@@ -18,9 +19,9 @@ class Color:
             return self._color_map[hex]
         if o is None:
             o = [0, 8, 16]
-        r = ((hex >> o[0]) & 0xFF) / 0xFF
-        g = ((hex >> o[1]) & 0xFF) / 0xFF
-        b = ((hex >> o[2]) & 0xFF) / 0xFF
+        r = ((hex >> o[0]) & 0xFF)
+        g = ((hex >> o[1]) & 0xFF)
+        b = ((hex >> o[2]) & 0xFF)
         c = np.array([r, g, b], dtype)
         self._color_map[hex] = c
         return c
@@ -58,11 +59,14 @@ class Color:
         else:
             return self._palette[blockID]
 
-    def get_hex_color(self, world_slice, x, y, z):
+    def get_hex_color(self, blockID):
         """Get the hex color for the block at a location"""
         try:
-            blockID = world_slice.get_block_id_at(x, y, z)
             return self.get_hex_color_for_id(blockID)
         except IndexError as ie:
             print(format_exc())
             return TEXTURE_MISSING
+
+    def get_int_rgb(self, blockID):
+        hc = self.get_hex_color(blockID)
+        return self.bgr_hex_to_int_rgb(hc)

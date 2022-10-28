@@ -64,9 +64,9 @@ class WorldData:
         nbt_file.chunkDZ.value = cdz
 
         for chunk in self.nbt_data.chunks.tags:
-            if not (cx < chunk['Level']['xPos'].value <= cx + cdx):
+            if not (cx <= chunk['Level']['xPos'].value < cx + cdx):
                 continue
-            if not (cz < chunk['Level']['zPos'].value <= cz + cdz):
+            if not (cz <= chunk['Level']['zPos'].value < cz + cdz):
                 continue
             nbt_file.chunks.append(chunk)
         return WorldData(rect, nbt_file)
@@ -75,7 +75,7 @@ class WorldData:
     def load_from_file(file_name, rect):
         if not file_name.endswith('chunk'):
             raise TypeError('Invalid File. Must be a CHUNK file')
-        with open(file_name, 'rb') as file:  # TODO: Change to GzipFile
+        with open(file_name, 'rb') as file:  # TODO: Change to GzipFile Using NBTFile
             header_bytes = file.read(3)
             if header_bytes != b'\x0A\x00\x04':
                 raise TypeError('This is not a CHUNK file!')
@@ -184,7 +184,7 @@ class WorldSlice:
         start_time = time()
         print(f'Loading Slice Chunks (0 / {chunk_count})...')
         full_world_data = None
-        for ix, (sx, sz) in enumerate(chunk_rect // step):
+        for ix, (sx, sz) in enumerate(chunk_rect.loop(ivec2(step, step))):
             world_data = WorldData.load_from_server(Rect.from_rect(sx, sz, step, step))
             full_world_data = world_data if full_world_data is None else (full_world_data + world_data)
             if ix > 0:
@@ -274,7 +274,6 @@ class WorldSlice:
         self.heightmaps = np.zeros((len(self.heightmap_types), self.rect.dx, self.rect.dz), dtype=np.uint16)
         heightmap_converter = BitConverter(9, 256)
 
-
         chunk_count = rect.area // (16 * 16)
         print(f'\nReading and Unpacking Chunk Data')
         start_time = time()
@@ -292,18 +291,18 @@ class WorldSlice:
                 raise Exception('Chunk was not loaded!')
 
             for rx in range(16):
+                ax = rcx * 16 + rx
+                brx = ax // 4
                 for rz in range(16):
-                    ax = rcx * 16 + rx
                     az = rcz * 16 + rz
+                    brz = az // 4
 
                     # if ax >= rect.xl or az >= rect.zl:
                     #     continue
-                    # Copy biome palette to per block data
-                    brx = rx // 4
-                    brz = rz // 4
 
+                    # Copy biome palette to per block data
                     for y in range(0, 64):
-                        bix = y * 4 * 4 + brz + brx * 4
+                        bix = y * 4 * 4 + rx // 4 * 4 + rz // 4
                         self.biomes[brx, brz, y] = level['Biomes'][bix]
 
                     # Convert the heightmap palette to heightmap value for each block
@@ -332,19 +331,22 @@ class WorldSlice:
     def __repr__(self):
         return f"WorldSlice{(self.rect.x1, self.rect.z1, self.rect.x2, self.rect.z2)}"
 
-    def _relative(self, p: ivec3) -> tuple[ivec3, ivec3]:
-        """ Return relative indices for accessing data """
-        cp = p // 16
-        cp.x -= self.chunk_rect.x1
-        cp.z -= self.chunk_rect.z1
-        rp = p % 16
-        rp.x -= self.rect.x1
-        rp.z -= self.rect.z1
-        return cp, rp
+    def _floor_div_p(self, p: ivec3, v: int):
+        return ivec3(p.x // v, p.y // v, p.z // v)
 
-    def get_relative_block_data_at(self, cp: ivec3, rp: ivec3) -> dict:
+    def _div_mod_p(self, p: ivec3, v: int):
+        return ivec3(p.x % v, p.y % v, p.z % v)
+
+    def _relative(self, p: ivec3) -> ivec3:
+        """ Return relative indices for accessing data """
+        p.x -= self.rect.x1
+        p.z -= self.rect.z1
+        return p
+
+    def get_relative_block_data_at(self, rp: ivec3) -> dict:
         """ Return block data from relative coordinates"""
         # print(cx, cy, cz, x, y, z, len(self.chunk_palettes), len(self.chunk_palettes[0]))
+        cp = self._floor_div_p(rp, 16)
         palette_index = self.chunks[rp.x, rp.z, rp.y]
         palette = self.chunk_palettes[cp.x][cp.z][cp.y]
         if palette is None:
@@ -356,11 +358,11 @@ class WorldSlice:
 
     def get_block_data_at(self, p: ivec3) -> dict:
         """ Return block data """
-        return self.get_relative_block_data_at(*self._relative(p))
+        return self.get_relative_block_data_at(self._relative(p))
 
     def get_relative_block_id_at(self, p: ivec3) -> str:
         """ Return the block's namespaced id at relative coordinates """
-        block_data = self.get_relative_block_data_at(*self._relative(p))
+        block_data = self.get_relative_block_data_at(p)
         name = block_data['Name']
         if isinstance(name, str):
             return name
@@ -368,25 +370,24 @@ class WorldSlice:
 
     def get_block_id_at(self, p: ivec3) -> str:
         """ Return the block's namespaced id at coordinates """
-        return self.get_relative_block_id_at(*self._relative(p))
+        return self.get_relative_block_id_at(self._relative(p))
 
     def get_biome_at(self, p: ivec3) -> int:
         """ Return biome at given coordinates
 
         Biome Data is represented as a 4x4x4 area
         """
-        from .lookup import BIOMES
+        return self.get_relative_biome_at(self._relative(p))
 
-        cp, rp = self._relative(p)
-        bp = rp // 4
+    def get_relative_biome_at(self, rp: ivec3):
+        bp = self._floor_div_p(rp, 4)
 
         biome_index = self.biomes[bp.x, bp.z, bp.y]
 
-        return BIOMES[biome_index]
+        return biome_index
 
     def get_biomes_in_chunk(self, p: ivec3) -> list[int]:
         """**Return a list of biomes in the same chunk**."""
-        from .lookup import BIOMES
 
         cp, rp = self._relative(p)
         bp = rp // 4
@@ -394,7 +395,7 @@ class WorldSlice:
         biomes = set()
         for x, y, z in bp:
             biomes.add(biomes[x, z, y])
-        return [BIOMES[ix] for ix in biomes]
+        return [ix for ix in biomes]
 
     def get_primary_biome_in_chunk(self, p: ivec3) -> int:
         """**Return the most prevelant biome in the same chunk**."""

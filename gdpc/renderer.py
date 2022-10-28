@@ -1,19 +1,15 @@
 from math import ceil, sqrt
-from os.path import exists, join
-from traceback import format_exc
 
+import cv2
 import numpy as np
-import open3d as o3d
 
-from sys import platform
 from PIL import Image, ImageShow
-from open3d.cpu.pybind.visualization.rendering import MaterialRecord, OffscreenRenderer
-from open3d.visualization import rendering
+from glm import clamp, ivec3
 from scipy.interpolate import interp1d
 
-import lookup
-from . import Rect
-from .toolbox import loop2d, loop3d
+import gdpc.lookup as lookup
+from .vector_util import Rect
+from .color import Color
 from .textures import IDENTIFIER_TO_TEXTURES, SIMPLE_TEXTURES
 
 
@@ -41,7 +37,7 @@ class PhotoViewer(ImageShow.Viewer):
 class Renderer:
     def __init__(self):
         self._render = None
-        self._color_map = {}
+        self._color_map = Color({})
         self._palette = lookup.PALETTELOOKUP
         self._height_map = None
         self._xo, self._yo, self._zo = 0, 0, 0
@@ -63,12 +59,12 @@ class Renderer:
         return self._color_map
 
     def _setup_render(self, world_slice, color_map):
-        self._color_map = color_map if color_map is not None else {}
+        self._color_map = color_map if color_map is not None else Color({})
         surface_index = world_slice.heightmap_types.index('MOTION_BLOCKING')
         self._height_map = world_slice.heightmaps[surface_index]
 
     def _setup_template_render(self, color_map):
-        self._color_map = color_map if color_map is not None else {}
+        self._color_map = color_map if color_map is not None else Color({})
 
     def show_2d_render(self):
         if self._render_2d is None:
@@ -106,24 +102,48 @@ class Renderer:
             wo = (aix * panel_width) % total_width
             ho = (aix * panel_height) / total_height
             norm = self._normalize(array).astype(np.uint8)
-            for x, y in loop2d(norm.shape):
-                self._render_2d[wo + y, ho + x] = heatmap_color(norm[y][x])
+            for y in range(norm.height):
+                for x in range(norm.width):
+                    self._render_2d[wo + y, ho + x] = heatmap_color(norm[y][x])
         return self
 
     def make_2d_world_render(self, rect: Rect, world_slice, color_map=None, title="World Render"):
         self._setup_render(world_slice, color_map)
         self._render_2d = np.zeros((*rect.size, 3), dtype=np.uint8)
         self._name = title
-        for xix, x in enumerate(range(rect.x1, rect.x2)):
-            rx = x - rect.x1
-            for zix, z in enumerate(range(rect.z1, rect.z2)):
-                y = self._height_map[rx, z - rect.z1]
-                hc = self._get_hex_color(world_slice, x, y, z)
-                self._render_2d[zix, xix] = self.hex_to_int_rgb(hc)
+        for xix, rx in enumerate(range(rect.dx)):
+            for zix, rz in enumerate(range(rect.dz)):
+                y = self._height_map[rx, rz]
+                blockID = world_slice.get_relative_block_id_at(ivec3(rx, y, rz))
+                self._render_2d[zix, xix] = self._color_map.get_int_rgb(blockID)
         return self
 
-    def make_2d_topographic_render(self):
-        pass
+    def make_2d_surface_biome_render(self, rect: Rect, world_slice, color_map=None, title="World Render"):
+        self._setup_render(world_slice, color_map)
+        self._render_2d = np.zeros((*rect.size, 3), dtype=np.uint8)
+        self._name = title
+        for xix, rx in enumerate(range(rect.dx)):
+            for zix, rz in enumerate(range(rect.dz)):
+                y = self._height_map[rx, rz]
+                biome_index = world_slice.get_relative_biome_at(ivec3(rx, y, rz))
+                self._render_2d[zix, xix] = self._color_map.rgb_hex_to_int_rgb(lookup.BIOME_COLORS[biome_index])
+        return self
+
+    def make_2d_topographic_render(self, rect: Rect, world_slice, color_map=None, title="World Render"):
+        self._setup_render(world_slice, color_map)
+        self._render_2d = np.zeros((*rect.size, 3), np.int32)
+        self._name = title
+        gradientX = cv2.Scharr(self._height_map, cv2.CV_16S, 1, 0)
+        gradientY = cv2.Scharr(self._height_map, cv2.CV_16S, 0, 1)
+        for xix, rx in enumerate(range(rect.dx)):
+            for zix, rz in enumerate(range(rect.dz)):
+                y = self._height_map[rx, rz]
+                blockID = world_slice.get_relative_block_id_at(ivec3(rx, y, rz))
+                self._render_2d[xix, zix] = self._color_map.get_int_rgb(blockID)
+        brightness = np.expand_dims((gradientX + gradientY).astype("int"), 2).clip(-64, 64)
+        self._render_2d += brightness
+        self._render_2d = self._render_2d.clip(0, 256).astype('uint8')
+        return self
     # def _render_cube(self, blockID, cx, cy, cz):
     #     nbt = {}
     #     if '[' in blockID:
