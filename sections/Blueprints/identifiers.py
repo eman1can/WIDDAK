@@ -7,7 +7,7 @@ from urllib.request import urlopen
 ID_TO_NAME = None
 NAME_TO_ID = None
 
-name_data_file = join('blueprints', 'ID_Name_Data.html')
+name_data_file = join('sections/Blueprints', 'ID_Name_Data.html')
 
 # https://minecraftitemids.com
 def parse_items(debug=True):

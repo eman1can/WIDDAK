@@ -76,7 +76,7 @@ class BuildingParser:
 
     def parse_json(self):
         # Load Building Templates from JSON
-        with open(join('blueprints', 'building_templates.json'), "r") as file:
+        with open(join('sections/blueprints', 'building_templates.json'), "r") as file:
             self.templates = json.load(file)
         return self.templates
 
@@ -84,7 +84,7 @@ class BuildingParser:
         # Parse All Building Templates
         self.templates = self.parse_building_list(NAME_TO_ID, False)
         # Save Templates to JSON
-        with open(join('blueprints', 'building_templates.json'), "w") as file:
+        with open(join('sections/blueprints', 'building_templates.json'), "w") as file:
             json_string = json.dumps(self.templates)
             indent = 0
             for ix, char in enumerate(json_string):
@@ -264,7 +264,7 @@ class BuildingParser:
         return None
 
     def parse_building_list(self, item_dictionary, debug=True):
-        with open('blueprints/Village_Structure_Blueprints.html', 'r', encoding='utf-8') as file:
+        with open('sections/blueprints/Village_Structure_Blueprints.html', 'r', encoding='utf-8') as file:
             soup = BeautifulSoup(file.read(), 'html.parser')
 
         blueprint_data = soup.find('div', attrs={'class': 'mw-parser-output'})
@@ -292,10 +292,10 @@ class BuildingParser:
                     print('\t' + name, link)
                     with urlopen(link) as page_stream:
                         page = page_stream.read()
-                    with open(f'blueprints/buildings/{key}.html', 'wb') as building_file:
+                    with open(f'sections/blueprints/buildings/{key}.html', 'wb') as building_file:
                         building_file.write(page)
                 else:
-                    with open(f'blueprints/buildings/{key}.html', 'rb') as building_file:
+                    with open(f'sections/blueprints/buildings/{key}.html', 'rb') as building_file:
                         page = building_file.read()
 
                 building_data = BeautifulSoup(page, 'html.parser')
