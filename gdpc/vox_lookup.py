@@ -653,6 +653,16 @@ MINECRAFT_TO_HEX = {
 }
 
 HEX_TO_MINECRAFT = {
+    # Main colors in palette.xml
+    "#000000": "minecraft:dark_oak_wood", # B: Black
+    "#FFF1E8": "minecraft:white_wool",    # W: White
+    "#AB5236": "minecraft:spruce_wood",   # N: Brown
+    "#00E436": "minecraft:spruce_leaves", # G: Green
+    "#FFEC27": "minecraft:yellow_wool",   # Y: Yellow
+    "#29ADFF": "minecraft:blue_wool",     # U: Blue
+    "#FF004D": "minecraft:red_wool",      # R: Red
+
+    # Chosen colors for minecraft blocks
     "#9eb238": "minecraft:slime_block",
     "#93b238": "minecraft:grass_block",
     "#f7d4a3": "minecraft:birch_fence_gate",
@@ -697,7 +707,6 @@ HEX_TO_MINECRAFT = {
     "#007c00": "minecraft:potatoes",
     "#007c0a": "minecraft:acacia_leaves",
     "#007c15": "minecraft:spruce_leaves",
-    "#00E436": "minecraft:spruce_leaves",
     "#e8f1ff": "minecraft:spruce_leaves",
     "#007c1f": "minecraft:birch_sapling",
     "#003000": "minecraft:cactus",
@@ -958,7 +967,7 @@ HEX_TO_MINECRAFT = {
     "#1c1c1c": "minecraft:basalt",
     "#1e1e1e": "minecraft:polished_blackstone_brick_slab",
     "#212121": "minecraft:polished_blackstone_bricks",
-    "#000000": "minecraft:black_concrete",
+    # "#000000": "minecraft:black_concrete",
     "#0c0c0c": "minecraft:black_banner",
     "#fac34d": "minecraft:gold_block",
     "#fad14d": "minecraft:light_weighted_pressure_plate",
@@ -978,7 +987,6 @@ HEX_TO_MINECRAFT = {
     "#814931": "minecraft:spruce_planks",
     "#814f31": "minecraft:stripped_spruce_log",
     "#815631": "minecraft:spruce_wood",
-    "#AB5236": "minecraft:spruce_wood",
     "#815d31": "minecraft:stripped_spruce_wood",
     "#816331": "minecraft:spruce_sign",
     "#816a31": "minecraft:spruce_wall_sign",
