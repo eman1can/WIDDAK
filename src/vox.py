@@ -35,7 +35,7 @@ class VoxFile:
 
         self._model_count = 0
         self._model_index = 0
-        self._models = None
+        self._models = [None]
 
         self._palette = default_palette
 
