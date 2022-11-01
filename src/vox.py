@@ -226,7 +226,3 @@ class VoxFile:
 
     def get_color_for_index(self, ci):
         return self._palette[ci]
-
-
-vox_file = VoxFile.from_file('MarkovJunior/output/ModernHouseMOD2_45348516.vox')
-vox_file.to_file('MarkovJunior/output/ModernHouse.vox')
