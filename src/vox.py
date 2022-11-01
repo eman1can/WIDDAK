@@ -1,6 +1,8 @@
 import builtins
 import numpy as np
 
+from gdpc.template import Template
+
 default_palette = np.array([
     0x00000000, 0xffffffff, 0xffccffff, 0xff99ffff, 0xff66ffff, 0xff33ffff, 0xff00ffff, 0xffffccff, 0xffccccff, 0xff99ccff, 0xff66ccff, 0xff33ccff, 0xff00ccff, 0xffff99ff, 0xffcc99ff, 0xff9999ff,
     0xff6699ff, 0xff3399ff, 0xff0099ff, 0xffff66ff, 0xffcc66ff, 0xff9966ff, 0xff6666ff, 0xff3366ff, 0xff0066ff, 0xffff33ff, 0xffcc33ff, 0xff9933ff, 0xff6633ff, 0xff3333ff, 0xff0033ff, 0xffff00ff,
@@ -20,81 +22,177 @@ default_palette = np.array([
     0xff880000, 0xff770000, 0xff550000, 0xff440000, 0xff220000, 0xff110000, 0xffeeeeee, 0xffdddddd, 0xffbbbbbb, 0xffaaaaaa, 0xff888888, 0xff777777, 0xff555555, 0xff444444, 0xff222222, 0xff111111
 ], dtype=np.uint32)
 
+MAGIC_BYTES = b'\x56\x4F\x58\x20'
+voxReader = None
 
-class VoxFile:
-    def __init__(self, path, *args, **kwargs):
-        self._file = builtins.open(path, 'rb', *args, **kwargs)
+
+class VoxReader:
+    def __init__(self):
+        self._clear_data()
+
+    def _clear_data(self):
+        self._file = None
+        self._model_index = 0
+        self._model = None
+        self._palette = None
+
+    def read(self, path):
+        self._file = open(path, 'rb')
 
         magic_bytes = self._file.read(4)
-        if magic_bytes != b'\x56\x4F\x58\x20':
+        if magic_bytes != MAGIC_BYTES:
             raise ValueError('This file is not a VOX file')
 
         version = int.from_bytes(self._file.read(4), 'little')
         if version != 150:
             raise ValueError(f'Invalid VOX version {version}')
+        vox_file = VoxFile()
+        self._parse_chunk(vox_file)
+        self._file.close()
+        self._clear_data()
+        return vox_file
 
-        self._model_count = 0
-        self._model_index = 0
-        self._models = [None]
+    def write(self, path, vox_file):
+        self._file = open(path, 'wb')
 
-        self._palette = default_palette
+        self._file.write(MAGIC_BYTES)
+        self._file.write(int.to_bytes(150, 4, 'little'))
 
-    # Start by Parsing the first chunk. This should be a MAIN chunk and contain all the data
-    def read(self):
-        self._parse_chunk()
+        main = [b'MAIN', b'', [[b'PACK', self._encode_int(vox_file.get_model_count()), []]]]
+        for model in vox_file.get_models():
+            for chunk in self._encode_model(model):
+                main[2].append(chunk)
+        main[2].append(self._encode_palette(vox_file.get_color_palette()))
 
-    def read_int(self):
-        return self.parse_int(self._file.read(4))
+        self._write_chunk(main)
 
-    def parse_int(self, data):
-        return int.from_bytes(data[:4], 'little')
+        self._file.close()
+        self._clear_data()
 
-    def parse_int8(self, data):
-        return int.from_bytes(data[:1], 'little')
-
-    def _parse_chunk(self):
+    def _parse_chunk(self, vox_file):
         identifier = self._file.read(4)
-        length = self.read_int()
-        child_length = self.read_int()
+        length = self._read_int()
+        child_length = self._read_int()
         data = None
         if length > 0:
             data = self._file.read(length)
-        self.handle_chunk(identifier, data)
+        self._handle_chunk(vox_file, identifier, data)
         index = self._file.tell()
         if child_length > 0:
             while self._file.tell() - index < child_length:
-                self._parse_chunk()
+                self._parse_chunk(vox_file)
 
-    def handle_chunk(self, identifier, data):
+    def _write_chunk(self, encoded_chunk):
+        self._file.write(encoded_chunk[0])  # Identifier
+        data_length = len(encoded_chunk[1])
+        self._write_int(data_length)
+        child_length = self._child_size(encoded_chunk[2])
+        self._write_int(child_length)
+        if data_length > 0:
+            self._file.write(encoded_chunk[1])  # The chunk data
+        if child_length > 0:
+            for child in encoded_chunk[2]:
+                self._write_chunk(child)
+
+    def _child_size(self, child_list):
+        result = 0
+        for child in child_list:
+            result += 4  # Identifier
+            result += len(child[1])  # Data
+            result += self._child_size(child[2])
+        return result
+
+    def _read_int(self):
+        return self._parse_int(self._file.read(4))
+
+    def _write_int(self, value):
+        self._file.write(self._encode_int(value))
+
+    def _encode_int(self, value):
+        return int.to_bytes(value, 4, 'little')
+
+    def _encode_int8(self, value):
+        return int.to_bytes(value, 1, 'little')
+
+    def _parse_int(self, data):
+        return int.from_bytes(data[:4], 'little')
+
+    def _parse_int8(self, data):
+        return int.from_bytes(data[:1], 'little')
+
+    def _handle_chunk(self, vox_file, identifier, data):
         if identifier == b'MAIN':
             return
         elif identifier == b'PACK':
-            self._model_count = self.parse_int(data)
-            self._models = [None for _ in range(self._model_count)]
+            vox_file.set_model_count(self._parse_int(data))
+            self._model_index = -1
         elif identifier == b'SIZE':
-            x = self.parse_int(data)
-            z = self.parse_int(data[4:])
-            y = self.parse_int(data[8:])
-            self._models[self._model_index] = np.zeros((y, x, z), dtype=np.uint32)
+            x = self._parse_int(data)
+            z = self._parse_int(data[4:])
+            y = self._parse_int(data[8:])
+            self._model = np.zeros((y, x, z), dtype=np.uint32)
+            self._model_index += 1
         elif identifier == b'XYZI':
-            voxel_count = self.parse_int(data)
+            voxel_count = self._parse_int(data)
             for vi in range(voxel_count):
                 di = vi * 4 + 4
-                x = self.parse_int8(data[di:])
-                z = self.parse_int8(data[di + 1:])
-                y = self.parse_int8(data[di + 2:])
-                ci = self.parse_int8(data[di + 3:])
-                self._models[self._model_index][y][x][z] = ci
-            self._model_index += 1
+                x = self._parse_int8(data[di:])
+                z = self._parse_int8(data[di + 1:])
+                y = self._parse_int8(data[di + 2:])
+                ci = self._parse_int8(data[di + 3:])
+                self._model[y][x][z] = ci
+            vox_file.set_model(self._model, self._model_index)
         elif identifier == b'RGBA':
-            self._palette = np.array(self._palette, copy=True)
+            self._palette = np.zeros(256)
             for ix in range(255):
                 di = ix * 4
-                rgba = self.parse_int(data[di:])
+                rgba = self._parse_int(data[di:])
                 self._palette[1 + ix] = rgba
+            vox_file.set_color_palette(self._palette)
 
-    def close(self):
-        self._file.close()
+    def _encode_palette(self, palette):
+        data = b''
+        for c in palette[1:256]:  # We only allow 255 colors (Skips first)
+            data += self._encode_int(int(c))
+        return [b'RGBA', data, []]
+
+    def _encode_model(self, model):
+        result = [[b'SIZE', b'', []], [b'XYZI', b'', []]]
+        y, x, z = model.shape
+        result[0][1] += self._encode_int(x)
+        result[0][1] += self._encode_int(z)
+        result[0][1] += self._encode_int(y)
+        voxel_count = x * y * z
+        result[1][1] += self._encode_int(voxel_count)
+        for zi in range(z):
+            for xi in range(x):
+                for yi in range(y):
+                    ci = model[yi][xi][zi]
+                    result[1][1] += self._encode_int8(xi)
+                    result[1][1] += self._encode_int8(zi)
+                    result[1][1] += self._encode_int8(yi)
+                    result[1][1] += self._encode_int8(int(ci))
+        return result
+
+
+class VoxFile:
+    def __init__(self):
+        self._model_count = 0
+        self._models = [None]
+        self._palette = default_palette
+
+    def to_file(self, path):
+        global voxReader
+        if voxReader is None:
+            voxReader = VoxReader()
+        voxReader.write(path, self)
+
+    @staticmethod
+    def from_file(path):
+        global voxReader
+        if voxReader is None:
+            voxReader = VoxReader()
+        return voxReader.read(path)
 
     def get_models(self):
         return self._models
@@ -104,11 +202,31 @@ class VoxFile:
             raise IndexError('Not a valid model index')
         return self._models[index]
 
+    def set_model(self, model, index=0):
+        if index < 0 or index > self._model_count:
+            raise IndexError('Not a valid model index')
+        if index == self._model_count:
+            self._model_count += 1
+            self._models.append(model)
+        else:
+            self._models[index] = model
+
     def get_model_count(self):
         return self._model_count
+
+    def set_model_count(self, count):
+        self._model_count = count
+        self._models = [None for _ in range(count)]
 
     def get_color_palette(self):
         return self._palette
 
+    def set_color_palette(self, palette):
+        self._palette = palette
+
     def get_color_for_index(self, ci):
         return self._palette[ci]
+
+
+vox_file = VoxFile.from_file('MarkovJunior/output/ModernHouseMOD2_45348516.vox')
+vox_file.to_file('MarkovJunior/output/ModernHouse.vox')

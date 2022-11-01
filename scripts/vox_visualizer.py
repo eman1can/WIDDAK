@@ -25,9 +25,7 @@ renderer.set_default_viewer()
 
 vox_file_directory = join('blueprints', 'vox')
 for vox_file_name in listdir(vox_file_directory):
-    vox_file = VoxFile(join(vox_file_directory, vox_file_name))
-    vox_file.read()
-    vox_file.close()
+    vox_file = VoxFile.from_file(join(vox_file_directory, vox_file_name))
 
     palette = vox_file.get_color_palette()
     for model in vox_file.get_models():

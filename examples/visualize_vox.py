@@ -130,9 +130,7 @@ def convert_to_minecraft_blocks(vox_file):
 
 def create_template_from_vox(vox_filepath):
     # Read in the VOX file
-    vox_file = VoxFile(vox_filepath)
-    vox_file.read()
-    vox_file.close()
+    vox_file = VoxFile.from_file(vox_filepath)
 
     # Convert the VOX file to a minecraft template
     minecraft_template = convert_to_minecraft_blocks(vox_file)
