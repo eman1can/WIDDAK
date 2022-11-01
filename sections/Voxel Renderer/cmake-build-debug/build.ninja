@@ -11,7 +11,7 @@
 # =============================================================================
 
 # =============================================================================
-# Project: VoxelRenderer
+# Project: LibVoxel
 # Configurations: Debug
 # =============================================================================
 
@@ -39,13 +39,13 @@ include CMakeFiles\rules.ninja
 #############################################
 # Logical path to working directory; prefix for absolute paths.
 
-cmake_ninja_workdir = F$:\CodeProjects\CLionProjects\OpenGL\cmake-build-debug\
+cmake_ninja_workdir = F$:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel$ Renderer\cmake-build-debug\
 
 #############################################
 # Utility command for rebuild_cache
 
 build CMakeFiles\rebuild_cache.util: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D F:\CodeProjects\CLionProjects\OpenGL\cmake-build-debug && C:\Users\Zoe\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\213.6461.75\bin\cmake\win\bin\cmake.exe --regenerate-during-build -SF:\CodeProjects\CLionProjects\OpenGL -BF:\CodeProjects\CLionProjects\OpenGL\cmake-build-debug"
+  COMMAND = cmd.exe /C "cd /D "F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\cmake-build-debug" && C:\Users\Zoe\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\213.6461.75\bin\cmake\win\bin\cmake.exe --regenerate-during-build -S"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer" -B"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\cmake-build-debug""
   DESC = Running CMake to regenerate build system...
   pool = console
   restat = 1
@@ -61,17 +61,17 @@ build rebuild_cache: phony CMakeFiles\rebuild_cache.util
 
 build cmake_object_order_depends_target_GLFWTest: phony || CMakeFiles\GLFWTest.dir
 
-build CMakeFiles\GLFWTest.dir\glfw.cpp.obj: CXX_COMPILER__GLFWTest_Debug F$:\CodeProjects\CLionProjects\OpenGL\glfw.cpp || cmake_object_order_depends_target_GLFWTest
+build CMakeFiles\GLFWTest.dir\glfw.cpp.obj: CXX_COMPILER__GLFWTest_Debug F$:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel$ Renderer\glfw.cpp || cmake_object_order_depends_target_GLFWTest
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -MDd -std:c++14
-  INCLUDES = -IF:\CodeProjects\CLionProjects\OpenGL\GLFW\include -IF:\CodeProjects\CLionProjects\OpenGL\GLEW\include -IF:\CodeProjects\CLionProjects\OpenGL\SDL2\include
+  INCLUDES = -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\GLFW\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\GLEW\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\SDL2\include"
   OBJECT_DIR = CMakeFiles\GLFWTest.dir
   OBJECT_FILE_DIR = CMakeFiles\GLFWTest.dir
   TARGET_COMPILE_PDB = CMakeFiles\GLFWTest.dir\
   TARGET_PDB = GLFWTest.pdb
 
-build CMakeFiles\GLFWTest.dir\shader_utils.cpp.obj: CXX_COMPILER__GLFWTest_Debug F$:\CodeProjects\CLionProjects\OpenGL\shader_utils.cpp || cmake_object_order_depends_target_GLFWTest
+build CMakeFiles\GLFWTest.dir\shader_utils.cpp.obj: CXX_COMPILER__GLFWTest_Debug F$:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel$ Renderer\shader_utils.cpp || cmake_object_order_depends_target_GLFWTest
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -MDd -std:c++14
-  INCLUDES = -IF:\CodeProjects\CLionProjects\OpenGL\GLFW\include -IF:\CodeProjects\CLionProjects\OpenGL\GLEW\include -IF:\CodeProjects\CLionProjects\OpenGL\SDL2\include
+  INCLUDES = -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\GLFW\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\GLEW\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\SDL2\include"
   OBJECT_DIR = CMakeFiles\GLFWTest.dir
   OBJECT_FILE_DIR = CMakeFiles\GLFWTest.dir
   TARGET_COMPILE_PDB = CMakeFiles\GLFWTest.dir\
@@ -102,11 +102,59 @@ build GLFWTest.exe: CXX_EXECUTABLE_LINKER__GLFWTest_Debug CMakeFiles\GLFWTest.di
 # Utility command for edit_cache
 
 build CMakeFiles\edit_cache.util: CUSTOM_COMMAND
-  COMMAND = cmd.exe /C "cd /D F:\CodeProjects\CLionProjects\OpenGL\cmake-build-debug && C:\Users\Zoe\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\213.6461.75\bin\cmake\win\bin\cmake.exe -E echo "No interactive CMake dialog available.""
+  COMMAND = cmd.exe /C "cd /D "F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\cmake-build-debug" && C:\Users\Zoe\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\213.6461.75\bin\cmake\win\bin\cmake.exe -E echo "No interactive CMake dialog available.""
   DESC = No interactive CMake dialog available...
   restat = 1
 
 build edit_cache: phony CMakeFiles\edit_cache.util
+
+# =============================================================================
+# Object build statements for SHARED_LIBRARY target LibVoxel
+
+
+#############################################
+# Order-only phony target for LibVoxel
+
+build cmake_object_order_depends_target_LibVoxel: phony || CMakeFiles\LibVoxel.dir
+
+build CMakeFiles\LibVoxel.dir\voxel.cpp.obj: CXX_COMPILER__LibVoxel_Debug F$:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel$ Renderer\voxel.cpp || cmake_object_order_depends_target_LibVoxel
+  DEFINES = -DLibVoxel_EXPORTS
+  FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -MDd -std:c++14
+  INCLUDES = -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\GLFW\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\GLEW\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\SDL2\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\SDL2_IMAGE\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\GLM"
+  OBJECT_DIR = CMakeFiles\LibVoxel.dir
+  OBJECT_FILE_DIR = CMakeFiles\LibVoxel.dir
+  TARGET_COMPILE_PDB = CMakeFiles\LibVoxel.dir\
+  TARGET_PDB = LibVoxel.pdb
+
+build CMakeFiles\LibVoxel.dir\shader_utils.cpp.obj: CXX_COMPILER__LibVoxel_Debug F$:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel$ Renderer\shader_utils.cpp || cmake_object_order_depends_target_LibVoxel
+  DEFINES = -DLibVoxel_EXPORTS
+  FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -MDd -std:c++14
+  INCLUDES = -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\GLFW\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\GLEW\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\SDL2\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\SDL2_IMAGE\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\GLM"
+  OBJECT_DIR = CMakeFiles\LibVoxel.dir
+  OBJECT_FILE_DIR = CMakeFiles\LibVoxel.dir
+  TARGET_COMPILE_PDB = CMakeFiles\LibVoxel.dir\
+  TARGET_PDB = LibVoxel.pdb
+
+
+# =============================================================================
+# Link build statements for SHARED_LIBRARY target LibVoxel
+
+
+#############################################
+# Link the shared library LibVoxel.dll
+
+build LibVoxel.dll LibVoxel.lib: CXX_SHARED_LIBRARY_LINKER__LibVoxel_Debug CMakeFiles\LibVoxel.dir\voxel.cpp.obj CMakeFiles\LibVoxel.dir\shader_utils.cpp.obj | ..\GLEW\win64\glew32.lib ..\GLFW\win64\glfw3.lib ..\SDL2_IMAGE\win64\SDL2_image.lib ..\SDL2\win64\sdl2.lib
+  LANGUAGE_COMPILE_FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -MDd
+  LINK_FLAGS = /machine:x64 /debug /INCREMENTAL  /DEF:CMakeFiles\LibVoxel.dir\.\exports.def
+  LINK_LIBRARIES = ..\GLEW\win64\glew32.lib  ..\GLFW\win64\glfw3.lib  ..\SDL2_IMAGE\win64\SDL2_image.lib  ..\SDL2\win64\sdl2.lib  opengl32.lib  kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib
+  OBJECT_DIR = CMakeFiles\LibVoxel.dir
+  POST_BUILD = cd .
+  PRE_LINK = cmd.exe /C "C:\Users\Zoe\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\213.6461.75\bin\cmake\win\bin\cmake.exe -E __create_def "F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\cmake-build-debug\CMakeFiles\LibVoxel.dir\.\exports.def" "F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\cmake-build-debug\CMakeFiles\LibVoxel.dir\.\exports.def.objs" && cd "F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\cmake-build-debug""
+  RESTAT = 1
+  TARGET_COMPILE_PDB = CMakeFiles\LibVoxel.dir\
+  TARGET_FILE = LibVoxel.dll
+  TARGET_IMPLIB = LibVoxel.lib
+  TARGET_PDB = LibVoxel.pdb
 
 # =============================================================================
 # Object build statements for EXECUTABLE target VoxelRenderer
@@ -117,17 +165,17 @@ build edit_cache: phony CMakeFiles\edit_cache.util
 
 build cmake_object_order_depends_target_VoxelRenderer: phony || CMakeFiles\VoxelRenderer.dir
 
-build CMakeFiles\VoxelRenderer.dir\voxel.cpp.obj: CXX_COMPILER__VoxelRenderer_Debug F$:\CodeProjects\CLionProjects\OpenGL\voxel.cpp || cmake_object_order_depends_target_VoxelRenderer
+build CMakeFiles\VoxelRenderer.dir\voxel.cpp.obj: CXX_COMPILER__VoxelRenderer_Debug F$:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel$ Renderer\voxel.cpp || cmake_object_order_depends_target_VoxelRenderer
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -MDd -std:c++14
-  INCLUDES = -IF:\CodeProjects\CLionProjects\OpenGL\GLFW\include -IF:\CodeProjects\CLionProjects\OpenGL\GLEW\include -IF:\CodeProjects\CLionProjects\OpenGL\SDL2\include -IF:\CodeProjects\CLionProjects\OpenGL\SDL2_IMAGE\include -IF:\CodeProjects\CLionProjects\OpenGL\GLM
+  INCLUDES = -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\GLFW\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\GLEW\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\SDL2\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\SDL2_IMAGE\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\GLM"
   OBJECT_DIR = CMakeFiles\VoxelRenderer.dir
   OBJECT_FILE_DIR = CMakeFiles\VoxelRenderer.dir
   TARGET_COMPILE_PDB = CMakeFiles\VoxelRenderer.dir\
   TARGET_PDB = VoxelRenderer.pdb
 
-build CMakeFiles\VoxelRenderer.dir\shader_utils.cpp.obj: CXX_COMPILER__VoxelRenderer_Debug F$:\CodeProjects\CLionProjects\OpenGL\shader_utils.cpp || cmake_object_order_depends_target_VoxelRenderer
+build CMakeFiles\VoxelRenderer.dir\shader_utils.cpp.obj: CXX_COMPILER__VoxelRenderer_Debug F$:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel$ Renderer\shader_utils.cpp || cmake_object_order_depends_target_VoxelRenderer
   FLAGS = /DWIN32 /D_WINDOWS /EHsc /Zi /Ob0 /Od /RTC1 -MDd -std:c++14
-  INCLUDES = -IF:\CodeProjects\CLionProjects\OpenGL\GLFW\include -IF:\CodeProjects\CLionProjects\OpenGL\GLEW\include -IF:\CodeProjects\CLionProjects\OpenGL\SDL2\include -IF:\CodeProjects\CLionProjects\OpenGL\SDL2_IMAGE\include -IF:\CodeProjects\CLionProjects\OpenGL\GLM
+  INCLUDES = -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\GLFW\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\GLEW\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\SDL2\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\SDL2_IMAGE\include" -I"F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer\GLM"
   OBJECT_DIR = CMakeFiles\VoxelRenderer.dir
   OBJECT_FILE_DIR = CMakeFiles\VoxelRenderer.dir
   TARGET_COMPILE_PDB = CMakeFiles\VoxelRenderer.dir\
@@ -158,6 +206,8 @@ build VoxelRenderer.exe: CXX_EXECUTABLE_LINKER__VoxelRenderer_Debug CMakeFiles\V
 
 build GLFWTest: phony GLFWTest.exe
 
+build LibVoxel: phony LibVoxel.dll
+
 build VoxelRenderer: phony VoxelRenderer.exe
 
 # =============================================================================
@@ -166,9 +216,9 @@ build VoxelRenderer: phony VoxelRenderer.exe
 # =============================================================================
 
 #############################################
-# Folder: F:/CodeProjects/CLionProjects/OpenGL/cmake-build-debug
+# Folder: F:/CodeProjects/PyCharmProjects/WIDDAK/sections/Voxel Renderer/cmake-build-debug
 
-build all: phony GLFWTest.exe VoxelRenderer.exe
+build all: phony GLFWTest.exe LibVoxel.dll VoxelRenderer.exe
 
 # =============================================================================
 # Built-in targets

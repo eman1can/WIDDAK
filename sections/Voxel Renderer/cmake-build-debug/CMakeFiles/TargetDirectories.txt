@@ -1,4 +1,5 @@
-F:/CodeProjects/CLionProjects/OpenGL/cmake-build-debug/CMakeFiles/rebuild_cache.dir
-F:/CodeProjects/CLionProjects/OpenGL/cmake-build-debug/CMakeFiles/GLFWTest.dir
-F:/CodeProjects/CLionProjects/OpenGL/cmake-build-debug/CMakeFiles/edit_cache.dir
-F:/CodeProjects/CLionProjects/OpenGL/cmake-build-debug/CMakeFiles/VoxelRenderer.dir
+F:/CodeProjects/PyCharmProjects/WIDDAK/sections/Voxel Renderer/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+F:/CodeProjects/PyCharmProjects/WIDDAK/sections/Voxel Renderer/cmake-build-debug/CMakeFiles/GLFWTest.dir
+F:/CodeProjects/PyCharmProjects/WIDDAK/sections/Voxel Renderer/cmake-build-debug/CMakeFiles/edit_cache.dir
+F:/CodeProjects/PyCharmProjects/WIDDAK/sections/Voxel Renderer/cmake-build-debug/CMakeFiles/LibVoxel.dir
+F:/CodeProjects/PyCharmProjects/WIDDAK/sections/Voxel Renderer/cmake-build-debug/CMakeFiles/VoxelRenderer.dir

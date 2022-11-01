@@ -75,12 +75,12 @@ class WorldData:
     def load_from_file(file_name, rect):
         if not file_name.endswith('chunk'):
             raise TypeError('Invalid File. Must be a CHUNK file')
-        with open(file_name, 'rb') as file:  # TODO: Change to GzipFile Using NBTFile
-            header_bytes = file.read(3)
-            if header_bytes != b'\x0A\x00\x04':
-                raise TypeError('This is not a CHUNK file!')
-            byte_data = header_bytes + file.read()
-        nbt_data = NBTFile(buffer=BytesIO(byte_data))
+        # with open(file_name, 'rb') as file:  # TODO: Change to GzipFile Using NBTFile
+        #     header_bytes = file.read(3)
+        #     if header_bytes != b'\x1F\x8B\x08':
+        #         raise TypeError('This is not a CHUNK file!')
+        #     byte_data = header_bytes + file.read()
+        nbt_data = NBTFile(filename=file_name)
         return WorldData(rect, nbt_data)
 
     @staticmethod
@@ -152,7 +152,7 @@ class WorldSlice:
 
         print(f'Loading Slice Chunks (0 / {chunk_count})...')
         start_time = time()
-        if step == saved_rect.xl and step == saved_rect.zl:
+        if step == saved_rect.dx and step == saved_rect.dz:
             # The world slice is from one chunk
             world_data = WorldData.load_from_file(join(path, world_name, 'saved', f'{saved_rect.x1}_{saved_rect.z1}_{step}.chunk'), rect)
             print(f'Done')

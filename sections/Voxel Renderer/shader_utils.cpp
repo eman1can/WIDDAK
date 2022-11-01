@@ -2,7 +2,6 @@
 // Created by Zoe on 10/20/2022.
 //
 
-#include <cstdio>
 #include <cstdlib>
 #include <iostream>
 

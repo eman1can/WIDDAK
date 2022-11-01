@@ -225,3 +225,9 @@ IDENTIFIER_TO_TEXTURES = {
         'texture_ids': np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], dtype=np.int32)
     },
 }
+
+if __name__ == "__main__":
+    print('const char* SIMPLE_TEXTURE_IMAGES[] = {')
+    for name in SIMPLE_TEXTURES:
+        print('        "local/block_assets/' + name[len('minecraft:'):] + '.png",')
+    print('};')

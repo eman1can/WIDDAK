@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_C_STANDARD 17)
 
 project(GLFWTest)
 project(VoxelRenderer)
@@ -50,6 +51,16 @@ target_include_directories(VoxelRenderer PRIVATE GLEW/include)
 target_include_directories(VoxelRenderer PRIVATE SDL2/include)
 target_include_directories(VoxelRenderer PRIVATE SDL2_IMAGE/include)
 target_include_directories(VoxelRenderer PRIVATE GLM)
+
+project(LibVoxel C)
+set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
+add_library(LibVoxel SHARED voxel.cpp shader_utils.cpp)
+target_link_libraries(LibVoxel ${GLEW_LIB} ${GLFW_LIB} ${SDL2_IMAGE_LIB} ${SDL2_LIB} opengl32.lib)
+target_include_directories(LibVoxel PRIVATE GLFW/include)
+target_include_directories(LibVoxel PRIVATE GLEW/include)
+target_include_directories(LibVoxel PRIVATE SDL2/include)
+target_include_directories(LibVoxel PRIVATE SDL2_IMAGE/include)
+target_include_directories(LibVoxel PRIVATE GLM)
 
 file(COPY ${GLFW_BIN} DESTINATION ${CMAKE_BINARY_DIR})
 file(COPY ${GLEW_BIN} DESTINATION ${CMAKE_BINARY_DIR})

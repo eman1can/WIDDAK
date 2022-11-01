@@ -3,6 +3,8 @@ renders/
 worlds/
 past-code/
 block_assets/
+cmake-build-debug/
+*/cmake-build-debug/
 *.zip
 
 # IDE Files
