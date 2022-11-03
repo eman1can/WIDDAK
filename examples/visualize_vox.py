@@ -44,7 +44,7 @@ from gdpc.block import Block
 from gdpc.interface import Interface, getBuildArea, getWorldSlice
 from gdpc.geometry import placeRect
 import json
-from gdpc.vox_lookup import HEX_TO_MINECRAFT
+from gdpc.vox_lookup import HEX_TO_MINECRAFT, VOX_TO_MINECRAFT
 
 from src.vox import VoxFile
 
@@ -103,8 +103,28 @@ def visualize_vox_template(template_path, location=None):
     itf.sendBufferedBlocks()
     itf.awaitBufferFlushes()
 
+# Convert VOX file colors to match colors in palette.xml
+def convert_to_hexcolor(orig_color):
+    color = hex(int(orig_color))
+    color = color.split('x')[1].zfill(6) 
+    color = color[4:6] + color[2:4] + color[0:2]
+    hex_color = '#' + color
+    return hex_color
 
-def convert_to_minecraft_blocks(vox_file):
+# Return the minecraft block for the given hex color
+# Return bedrock if no match is found
+def get_minecraft_block(hex_color, biome):
+    biome_blocks = VOX_TO_MINECRAFT.get(hex_color)
+    if biome_blocks and biome_blocks.get(biome):
+        return biome_blocks.get(biome)
+    minecraft_block = HEX_TO_MINECRAFT.get(hex_color)
+    if minecraft_block:
+        return minecraft_block
+    return "minecraft:bedrock" 
+
+
+def convert_to_minecraft_blocks(vox_file, biome):
+    all_colors = set()
 
     for model in vox_file.get_models():
         template = []
@@ -114,26 +134,25 @@ def convert_to_minecraft_blocks(vox_file):
                 row = []
                 for k in range(len(model[i][j])):
                     if model[i][j][k] != 0:
-                        minecraft_palette_index = model[i][j][k] - 1
-                        color = hex(vox_file.get_color_for_index(minecraft_palette_index))
-                        hex_color = '#' + color.split('x')[1].zfill(6) 
-                        minecraft_block = HEX_TO_MINECRAFT.get(hex_color)
-                        if minecraft_block is None:
-                            minecraft_block = list(HEX_TO_MINECRAFT.values())[minecraft_palette_index]
+                        minecraft_palette_index = model[i][j][k] 
+                        hex_color = convert_to_hexcolor(vox_file.get_color_for_index(minecraft_palette_index))
+                        minecraft_block = get_minecraft_block(hex_color, biome)
                         row.append(minecraft_block)
+                        all_colors.add(hex_color)
                     else:
                         row.append(None)
                 layer.append(row)
             template.append(layer)
+        print(all_colors)
         return template
     
 
-def create_template_from_vox(vox_filepath):
+def create_template_from_vox(vox_filepath, biome='forest'):
     # Read in the VOX file
     vox_file = VoxFile.from_file(vox_filepath)
 
     # Convert the VOX file to a minecraft template
-    minecraft_template = convert_to_minecraft_blocks(vox_file)
+    minecraft_template = convert_to_minecraft_blocks(vox_file, biome)
 
     # Save the template
     file_name = vox_filepath.split('/')[-1].split('.')[0] + '.json'
@@ -147,6 +166,20 @@ def create_template_from_vox(vox_filepath):
 filepath1 = 'MarkovJunior/resources/rules/ModernHouseMOD2/ModernHouseMOD1_73618823.vox'
 filepath2 = 'sections/MarkovJunior/output/EthanTree_1136010046.vox'
 filepath3 = 'MarkovJunior/resources/Apartemazements_722238551.vox'
-template_path = create_template_from_vox(filepath3)
-location = [0, 0, 200]
+filepath4 = 'MarkovJunior/resources/TreeV2_2120272460.vox'
+
+# template_path = create_template_from_vox(filepath4, 'forest')
+# location = [100, 130, 80]
+# visualize_vox_template(template_path, location)
+
+# template_path = create_template_from_vox(filepath4, 'taiga')
+# location = [90, 130, 80]
+# visualize_vox_template(template_path, location)
+
+# template_path = create_template_from_vox(filepath4, 'birch_forest')
+# location = [80, 130, 80]
+# visualize_vox_template(template_path, location)
+
+template_path = create_template_from_vox(filepath1, 'jungle')
+location = [70, 130, 70]
 visualize_vox_template(template_path, location)

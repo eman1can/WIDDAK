@@ -654,13 +654,17 @@ MINECRAFT_TO_HEX = {
 
 HEX_TO_MINECRAFT = {
     # Main colors in palette.xml
-    "#000000": "minecraft:dark_oak_wood", # B: Black
-    "#FFF1E8": "minecraft:white_wool",    # W: White
-    "#AB5236": "minecraft:spruce_wood",   # N: Brown
-    "#00E436": "minecraft:spruce_leaves", # G: Green
-    "#FFEC27": "minecraft:yellow_wool",   # Y: Yellow
-    "#29ADFF": "minecraft:blue_wool",     # U: Blue
-    "#FF004D": "minecraft:red_wool",      # R: Red
+    '#00b543': "minecraft:grass", 
+    '#ff6c24': "minecraft:dirt", 
+    '#29adff': "minecraft:cyan_stained_glass", 
+    '#49333b': "minecraft:dark_oak_wood", 
+    '#696a6a': "minecraft:gray_concrete",
+    '#fff1e8': "minecraft:quartz_block", 
+    '#4b692f': "minecraft:grass_block", 
+    '#e4bb40': "minecraft:gold_block", 
+    '#ffec27': 'minecraft:glowstone', 
+    '#ab5236': "minecraft:dark_oak_wood", 
+    '#ffa300': "minecraft:light_gray_concrete",
 
     # Chosen colors for minecraft blocks
     "#9eb238": "minecraft:slime_block",
@@ -1055,4 +1059,23 @@ HEX_TO_MINECRAFT = {
     "#562c49": "minecraft:warped_hyphae",
     "#562c45": "minecraft:stripped_warped_hyphae",
     "#14b45d": "minecraft:warped_wart_block",
+}
+
+VOX_TO_MINECRAFT = {
+    '#00e436': {
+        'birch_forest': 'minecraft:birch_leaves',
+        'forest': 'minecraft:spruce_leave',
+        'mountains': 'minecraft:oak_leaves',
+        'taiga': 'minecraft:acacia_leaves',
+        'jungle': 'minecraft:jungle_leaves',
+        'snowy': 'minecraft:dark_oak_leaves',
+    },
+    '#ab5236': {
+        'birch_forest': 'minecraft:birch_wood',
+        'forest': 'minecraft:spruce_wood',
+        'mountains': 'minecraft:oak_wood',
+        'taiga': 'minecraft:acacia_wood',
+        'jungle': 'minecraft:jungle_wood',
+        'snowy': 'minecraft:dark_oak_wood',
+    }
 }
