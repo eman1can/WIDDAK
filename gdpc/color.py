@@ -14,16 +14,16 @@ class Color:
         self._color_map = color_map
         self._palette = palette
 
-    def _hex_to_scalar(self, hex, o=None, dtype=np.float64):
-        if hex in self._color_map:
-            return self._color_map[hex]
+    def _hex_to_scalar(self, color, o=None, dtype=np.float64):
+        if color in self._color_map:
+            return self._color_map[color]
         if o is None:
             o = [0, 8, 16]
-        r = ((hex >> o[0]) & 0xFF)
-        g = ((hex >> o[1]) & 0xFF)
-        b = ((hex >> o[2]) & 0xFF)
+        r = ((color >> o[0]) & 0xFF)
+        g = ((color >> o[1]) & 0xFF)
+        b = ((color >> o[2]) & 0xFF)
         c = np.array([r, g, b], dtype)
-        self._color_map[hex] = c
+        self._color_map[color] = c
         return c
 
     def swap_rgb_bgr(self, val):
@@ -33,21 +33,29 @@ class Color:
         c = (val >> 16) & 0xFF
         return c | b | a << 16
 
-    def rgb_hex_to_float_rgb(self, hex):
+    def rgb_hex_to_float_rgb(self, color):
         """Convert a hex scaler into a float64 array of rgb"""
-        return self._hex_to_scalar(hex)
+        return self._hex_to_scalar(color)
 
-    def bgr_hex_to_float_rgb(self, hex):
+    def bgr_hex_to_float_rgb(self, color):
         """Convert a bgr hex scaler into a float64 array of rgb"""
-        return self._hex_to_scalar(hex, [16, 8, 0])
+        return self._hex_to_scalar(color, [16, 8, 0])
 
-    def rgb_hex_to_int_rgb(self, hex):
+    def rgb_hex_to_int_rgb(self, color):
         """Convert a hex scaler into a uint8 array of rgb"""
-        return self._hex_to_scalar(hex, dtype=np.uint8)
+        return self._hex_to_scalar(color, dtype=np.uint8)
 
-    def bgr_hex_to_int_rgb(self, hex):
+    def bgr_hex_to_int_rgb(self, color):
         """Convert a bgr hex scaler into a uint8 array of rgb"""
-        return self._hex_to_scalar(hex, [16, 8, 0], dtype=np.uint8)
+        return self._hex_to_scalar(color, [16, 8, 0], dtype=np.uint8)
+
+    def int_rgb_hex_to_string(self, color):
+        """ Convert an int hex to a string """
+        return hex(int(color))[2:]
+
+    def int_bgr_hex_to_string(self, color):
+        """ Convert an int hex to a string """
+        return hex(int(self.swap_rgb_bgr(color)))[2:]
 
     def get_hex_color_for_id(self, blockID):
         """Convert a minecraft blockID into a hex color based on the internal palette"""
