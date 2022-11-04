@@ -1,5 +1,9 @@
 import os
+import subprocess
 from subprocess import Popen, PIPE
+import shutil
+from time import perf_counter
+
 
 
 def run_markov():
@@ -20,7 +24,72 @@ def run_markov():
     os.chdir(s_cwd)
     # TODO: Utilize 3D Renderer to show VOX Output
 
+def run_multiple_markov():
+
+    folder_name = "modelsT1_2"
+
+    # Get current working directory
+    s_cwd = os.getcwd()
+
+    # Enter the MarkovJunior directory
+    os.chdir("MarkovJunior")
+
+    # Start Timer
+    t1_start = perf_counter()
+
+    for i in range(10):
+
+        success = False
+
+        while not success:
+            # Run the executable
+            print("MarkovJunior start runnning.")
+            p1 = subprocess.Popen(["MarkovJunior.exe", "modelsT1_1.xml"])
+
+            p1.wait()
+            print("MarkovJunior end runnning.")
+
+
+            os.chdir("output")
+            fns = os.listdir()
+            vox_fn = fns[0]
+            shutil.copy2(vox_fn, "../resources/rules/" + folder_name + "/ModernHouseOutput.vox")
+
+            # Enter the MarkovJunior directory
+            os.chdir("..")
+
+            # Run the executable
+            print("MarkovJunior start runnning.")
+            p1 = subprocess.Popen(["MarkovJunior.exe", "modelsT1_2.xml"])
+            # Popen()
+            # p.communicate(bytes("modelsT1_1.xml", "utf-8"))
+            p1.wait()
+            print("MarkovJunior end runnning.")
+
+            # Check if successful change by seeing if ModernHouseT1 was able to run
+            os.chdir("output")
+            fns = os.listdir()
+            if len(fns) > 0:
+                success = True
+            os.chdir("..")
+        # End of success loop checker.
+
+        # Copy to multiple outputs
+        m_folder = "multiple_outputs"
+        os.chdir("output")
+        fns = os.listdir()
+        vox_fn = fns[0]
+        shutil.copy2(vox_fn, "../" + m_folder + "/ModernHouseOutput" + str(i) + ".vox")
+
+        # Reset directory to MarkovJunior folder
+        os.chdir("..")
+    # End of number-of-buildings loop
+    t1_stop = perf_counter()
+    print("Elapsed time for i=" + str(i) + " outputs: " + str(t1_stop-t1_start))
+
+    os.chdir(s_cwd)
+
 if __name__ == "__main__":
-    run_markov()
+    run_multiple_markov()
 
 
