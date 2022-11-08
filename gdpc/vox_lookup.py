@@ -1062,8 +1062,6 @@ HEX_TO_MINECRAFT = {
     "#562c45": "minecraft:stripped_warped_hyphae",
     "#14b45d": "minecraft:warped_wart_block",
 }
-<<<<<<< HEAD
-=======
 
 VOX_TO_MINECRAFT = {
     '#00e436': {
@@ -1083,4 +1081,3 @@ VOX_TO_MINECRAFT = {
         'snowy': 'minecraft:dark_oak_wood',
     }
 }
->>>>>>> a18b7bdf05b0014806852514ab9d52022da4e022
