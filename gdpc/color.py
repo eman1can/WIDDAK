@@ -26,7 +26,8 @@ class Color:
         self._color_map[color] = c
         return c
 
-    def swap_rgb_bgr(self, val):
+    @staticmethod
+    def swap_rgb_bgr(val):
         """Switch the color channels for this color. Will only work for ints or hex"""
         a = val & 0xFF
         b = val & (0xFF << 8)
@@ -51,11 +52,12 @@ class Color:
 
     def int_rgb_hex_to_string(self, color):
         """ Convert an int hex to a string """
-        return hex(int(color))[2:]
+        return hex(int(color))[2:].upper()
 
     def int_bgr_hex_to_string(self, color):
         """ Convert an int hex to a string """
-        return hex(int(self.swap_rgb_bgr(color)))[2:]
+        val = int(self.swap_rgb_bgr(color))
+        return hex(val)[2:].zfill(6).upper()
 
     def get_hex_color_for_id(self, blockID):
         """Convert a minecraft blockID into a hex color based on the internal palette"""

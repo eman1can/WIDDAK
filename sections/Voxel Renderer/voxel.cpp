@@ -14,6 +14,7 @@ using namespace std;
 #include <SDL_image.h>
 
 #include "shader_utils.h"
+#include "textures.h"
 #undef main
 
 #include <glm/glm.hpp>
@@ -23,28 +24,24 @@ using namespace std;
 class Shape {
 public:
     static Shape* makeCube(float);
-    GLintptr vsize() const { return _vert_count; }
-    GLintptr esize() const { return _indx_count; }
-    GLintptr tsize() const { return _texture_count; }
-    GLfloat* vertices() const { return _vertices; }
-    GLushort* indices() const { return _indices; }
-    GLuint* textures() const { return _textures; }
+    GLintptr vsize() const { return vertex_count * sizeof(GLfloat); }
+    GLintptr esize() const { return index_count * sizeof(GLushort); }
 private:
     Shape();
 public:
     Shape* next;
-private:
-    GLfloat* _vertices;
-    GLintptr _vert_count;
-    GLushort* _indices;
-    GLintptr _indx_count;
-    GLuint* _textures;
-    GLintptr _texture_count;
+    GLfloat* vertices;
+    GLushort* indices;
+    uint8_t* sides;
+    uint16_t vertex_count;
+    uint16_t index_count;
+    uint8_t side_count;
 };
 
 struct VoxelNode {
     glm::fvec3 pos;
     Shape* shape;
+    GLuint* tex_ids;
     uint8_t category;
     uint32_t index;
     VoxelNode* next;
@@ -52,12 +49,12 @@ struct VoxelNode {
 
 Shape::Shape() {
     next = nullptr;
-    _vertices = nullptr;
-    _indices = nullptr;
-    _textures = nullptr;
-    _vert_count = 0;
-    _indx_count = 0;
-    _texture_count = 0;
+    vertices = nullptr;
+    indices = nullptr;
+    sides = nullptr;
+    vertex_count = 0;
+    index_count = 0;
+    side_count = 0;
 }
 
 GLuint load_image(const char* path) {
@@ -71,13 +68,17 @@ GLuint load_image(const char* path) {
     glGenTextures(1, &texture_id);
     glBindTexture(GL_TEXTURE_2D, texture_id);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    int format = GL_RGBA;
+    if (res_texture->format->format == SDL_PIXELFORMAT_RGB24)
+        format = GL_RGB;
     glTexImage2D(GL_TEXTURE_2D, // target
                  0,  // level, 0 = base, no minimap,
                  GL_RGBA, // internalformat
                  res_texture->w,  // width
                  res_texture->h,  // height
                  0,  // border, always 0 in OpenGL ES
-                 GL_RGBA,  // format
+                 format,  // format
                  GL_UNSIGNED_BYTE, // type
                  res_texture->pixels);
     SDL_FreeSurface(res_texture);
@@ -134,18 +135,21 @@ Shape* Shape::makeCube(float edge=1.0) {
             20, 21, 22, 22, 23, 20
     };
 
+    uint8_t sides[] = {6, 6, 6, 6, 6, 6};
+
     auto cube = new Shape();
     cube->next = nullptr;
-    cube->_vertices = (GLfloat*) malloc(sizeof(vertices));
-    cube->_indices = (GLushort*) malloc(sizeof(indices));
-    cube->_textures = (GLuint*) malloc(sizeof(GLuint) * 1);
-    cube->_vert_count = 24 * 5;
-    cube->_indx_count = 36;
-    cube->_texture_count = 1;
-    *cube->_textures = load_image("res_texture.png");
+    cube->vertices = (GLfloat*) malloc(sizeof(vertices));
+    cube->indices = (GLushort*) malloc(sizeof(indices));
+    cube->sides = (uint8_t*) malloc(sizeof(sides));
 
-    memcpy(cube->_vertices, vertices, sizeof(vertices));
-    memcpy(cube->_indices, indices, sizeof(indices));
+    cube->vertex_count = 24 * 5;
+    cube->index_count = 36;
+    cube->side_count = 6;
+
+    memcpy(cube->vertices, vertices, sizeof(vertices));
+    memcpy(cube->indices, indices, sizeof(indices));
+    memcpy(cube->sides, sides, sizeof(sides));
 
     return cube;
 }
@@ -157,11 +161,13 @@ public:
     int init();
     int open();
 
-    void addVoxel(glm::fvec3 pos, std::string blockID);
+    void addVoxel(glm::fvec3 pos, uint8_t category, uint32_t index);
 
     void setSize(int width, int height);
 
     void onResize(GLFWwindow* window, int width, int height);
+    void onMouse(GLFWwindow* window, int button, int action, int mods);
+    void onKeyboard(GLFWwindow* window, int keycode, int scancode, int action, int mods);
 
 private:
     int _init();
@@ -192,12 +198,16 @@ private:
     GLint uni_mvp;
     GLint uni_tex;
 
+    glm::fvec3 key_translate;
+
     Shape* shape_stack;
     VoxelNode* voxel_stack;
     glm::mat4 mvp;
 
     void* input;
     GLFWwindow* _window;
+
+    GLuint* _texture_ids;
 };
 
 class Input {
@@ -211,6 +221,12 @@ public:
 
     static void onResize(GLFWwindow* win, int w, int h) { getInstance(nullptr).onResizeImpl(win, w, h); }
     void onResizeImpl(GLFWwindow* win, int w, int h) { ((Renderer*) renderer)->onResize(win, w, h); }
+
+    static void onMouse(GLFWwindow* win, int b, int a, int m) { getInstance(nullptr).onMouseImpl(win, b, a, m); }
+    void onMouseImpl(GLFWwindow* win, int b, int a, int m) { ((Renderer*) renderer)->onMouse(win, b, a, m); }
+
+    static void onKeyboard(GLFWwindow* win, int k, int s, int a, int m) { getInstance(nullptr).onKeyboardImpl(win, k, s, a, m); }
+    void onKeyboardImpl(GLFWwindow* win, int k, int s, int a, int m) { ((Renderer*) renderer)->onKeyboard(win, k, s, a, m); }
 
     Input(Input const&) = delete;
     void operator=(Input const&) = delete;
@@ -232,6 +248,8 @@ Renderer::Renderer(int width, int height) {
     uni_mvp = -1;
     uni_tex = -1;
 
+    key_translate = glm::fvec3(0, 0, 0);
+
     shape_stack = nullptr;
     voxel_stack = nullptr;
     mvp = glm::mat4(1.0f);
@@ -240,6 +258,10 @@ Renderer::Renderer(int width, int height) {
 
     input = (void*) &Input::getInstance(this);
     _window = nullptr;
+
+    size_t asset_count = sizeof(TEXTURE_ASSETS) / sizeof(const char*);
+    printf("%llu\n", asset_count);
+    _texture_ids = (GLuint*) calloc(asset_count, sizeof(GLuint));
 }
 
 int Renderer::_init() {
@@ -247,11 +269,11 @@ int Renderer::_init() {
     GLuint vs, fs;
     GLint link_ok = GL_FALSE;
 
-    if ((vs = create_shader("cube.v.glsl", GL_VERTEX_SHADER)) == 0) {
+    if ((vs = create_shader("sections/Voxel Renderer/cube.v.glsl", GL_VERTEX_SHADER)) == 0) {
         fprintf(stderr, "Failed to compile vertex shader.\n");
         return -1;
     }
-    if ((fs = create_shader("cube.f.glsl", GL_FRAGMENT_SHADER)) == 0) {
+    if ((fs = create_shader("sections/Voxel Renderer/cube.f.glsl", GL_FRAGMENT_SHADER)) == 0) {
         fprintf(stderr, "Failed to compile fragment shader\n");
         return -1;
     }
@@ -286,6 +308,8 @@ int Renderer::_init() {
         }
     }
 
+
+
     return 0;
 }
 
@@ -301,31 +325,28 @@ void Renderer::init_buffers() {
         return;
     }
 
-    GLintptr vert_size = shape_stack->vsize() * sizeof(GLfloat);
-    GLintptr indx_size = shape_stack->esize() * sizeof(GLushort);
-
     GLintptr offset = 0;
     Shape* current;
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, vert_size, 0, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, shape_stack->vsize(), 0, GL_STATIC_DRAW);
     glVertexAttribPointer(att_pos, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*) nullptr);
     glVertexAttribPointer(att_uvs, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*) (3 * sizeof(GLfloat)));
 
     current = shape_stack;
     while (current != nullptr) {
-        glBufferSubData(GL_ARRAY_BUFFER, offset, vert_size, current->vertices());
+        glBufferSubData(GL_ARRAY_BUFFER, offset, shape_stack->vsize(), current->vertices);
         offset += current->vsize();
         current = current->next;
     }
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indx_size, 0, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, shape_stack->esize(), 0, GL_STATIC_DRAW);
 
     offset = 0;
     current = shape_stack;
     while (current != nullptr) {
-        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, indx_size, current->indices());
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, offset, shape_stack->esize(), current->indices);
         offset += current->esize();
         current = current->next;
     }
@@ -335,24 +356,85 @@ void Renderer::onResize(GLFWwindow* window, int width, int height) {
     setSize(width, height);
 }
 
+void Renderer::onMouse(GLFWwindow* window, int button, int action, int mods) {
+    printf("%d, %d, %d\n", button, action, mods);
+}
+
+void Renderer::onKeyboard(GLFWwindow* window, int keycode, int scancode, int action, int mods) {
+    float sensitivity = 0.2;
+    if (action == 1 || action == 2) {
+        switch (keycode) {
+            case 87: // W
+                key_translate.z = sensitivity;
+                break;
+            case 83: // S
+                key_translate.z = -sensitivity;
+                break;
+            case 68: // D
+                key_translate.x = -sensitivity;
+                break;
+            case 65: // A
+                key_translate.x = sensitivity;
+                break;
+            case 32: // Space
+                key_translate.y = -sensitivity;
+                break;
+            case 340: // Shift
+                key_translate.y = sensitivity;
+                break;
+            default:
+                printf("Unhandled Keycode: %d, %d, %d, %d\n", keycode, scancode, action, mods);
+                break;
+        }
+    } else {
+        switch (keycode) {
+            case 87: // W
+            if (key_translate.z == sensitivity)
+                key_translate.z = 0;
+                break;
+            case 83: // S
+                if (key_translate.z == -sensitivity)
+                    key_translate.z = 0;
+                break;
+            case 68: // D
+                if (key_translate.x == -sensitivity)
+                    key_translate.x = 0;
+                break;
+            case 65: // A
+                if (key_translate.x == sensitivity)
+                    key_translate.x = 0;
+                break;
+            case 32: // Space
+                if (key_translate.y == -sensitivity)
+                    key_translate.y = 0;
+                break;
+            case 340: // Shift
+                if (key_translate.y == sensitivity)
+                    key_translate.y = 0;
+                break;
+            default:
+                break;
+        }
+    }
+
+}
+
 void Renderer::setSize(int width, int height) {
     glViewport(0, 0, (_width = width), (_height = height));
     render();
 }
 
 void Renderer::logic() {
-    float angle = (float) glfwGetTime() * (float) glm::radians(15.0);  // base 15° per second
-    glm::mat4 anim = glm::rotate(glm::mat4(1.0f), angle * 3.0f, glm::vec3(0, 1, 0));   // Z axis
+//    float angle = (float) glfwGetTime() * (float) glm::radians(15.0);  // base 15° per second
+//    glm::mat4 anim = glm::rotate(glm::mat4(1.0f), angle * 3.0f, glm::vec3(0, 1, 0));   // Z axis
 
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, -4.0));
-    glm::mat4 view = glm::lookAt(glm::vec3(0.0, 2.0, 0.0), glm::vec3(0.0, 0.0, -4.0), glm::vec3(0.0, 1.0, 0.0));
-    glm::mat4 projection = glm::perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 10.0f);
+    mvp *= glm::translate(glm::mat4(1.0f), key_translate);
 
-    mvp = projection * view * model * anim;
     glUniformMatrix4fv(uni_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
 }
 
 void Renderer::translate(glm::fvec3 pos) {
+//    printf("%f, %f, %f\n", pos.x, pos.y, pos.z);
     glm::mat4 model = glm::translate(glm::mat4(1.0f), pos);
     mvp *= model;
     glUniformMatrix4fv(uni_mvp, 1, GL_FALSE, glm::value_ptr(mvp));
@@ -371,7 +453,7 @@ void Renderer::render() {
 
     glActiveTexture(GL_TEXTURE0);
     glUniform1i(uni_tex, /*GL_TEXTURE*/0);
-    glBindTexture(GL_TEXTURE_2D, *shape_stack->textures());
+//    glBindTexture(GL_TEXTURE_2D, *shape_stack->textures());
 
     glEnableVertexAttribArray(att_pos);
     glEnableVertexAttribArray(att_uvs);
@@ -379,7 +461,17 @@ void Renderer::render() {
     VoxelNode* current = voxel_stack;
     while (current != nullptr) {
         translate(current->pos);
-        glDrawElements(GL_TRIANGLES, current->shape->esize(), GL_UNSIGNED_SHORT, 0);
+        uint32_t offset = 0;
+        GLuint last = 0;
+        for (int i = 0; i < current->shape->side_count; i++) {
+            if (last != current->tex_ids[i]) {
+                glBindTexture(GL_TEXTURE_2D, current->tex_ids[i]);
+                last = current->tex_ids[i];
+            }
+            glDrawElements(GL_TRIANGLES, current->shape->sides[i], GL_UNSIGNED_SHORT, (void*) (offset * sizeof(GLushort)));
+            offset += current->shape->sides[i];
+        }
+
         invTranslate(current->pos);
         current = current->next;
     }
@@ -403,11 +495,42 @@ void Renderer::addVoxel(glm::fvec3 pos, uint8_t category, uint32_t index) {
         node->next = voxel_stack;
     voxel_stack = node;
 
+    // Load Images
+    if (category == SIMPLE) {
+        uint16_t image_index = SIMPLE_TEXTURE_IMAGES[index];
+        node->tex_ids = (GLuint*) malloc(6 * sizeof(GLuint));
+        if (_texture_ids[image_index] == 0) {
+            const char* asset_path = TEXTURE_ASSETS[image_index];
+            _texture_ids[image_index] = load_image(asset_path);
+            printf("Loaded asset %d (%s) into %u\n", image_index, asset_path, _texture_ids[image_index]);
+        }
+        for (int ix = 0; ix < 6; ix++)
+            node->tex_ids[ix] = _texture_ids[image_index];
+    } else if (category == MULTI_TEXTURE) {
+        MultiTexture tex = MULTI_TEXTURES[index];
+        node->tex_ids = (GLuint*) malloc(6 * sizeof(GLuint));
+        for (int ix = 0; ix < 6; ix++) {
+            uint16_t image_index = tex.textures[tex.texture_ids[ix]];
+            if (_texture_ids[image_index] == 0) {
+                const char* asset_path = TEXTURE_ASSETS[image_index];
+                _texture_ids[image_index] = load_image(asset_path);
+                printf("Loaded asset %d (%s) into %u\n", image_index, asset_path, _texture_ids[image_index]);
+            }
+            node->tex_ids[ix] = _texture_ids[image_index];
+        }
+    }
+
     _buffers = false;
 }
 
 
 void Renderer::mainLoop(GLFWwindow* window) {
+    // Setup the camera
+    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(0.0, 0.0, -4.0));
+    glm::mat4 view = glm::lookAt(glm::vec3(0.0, 2.0, 0.0), glm::vec3(0.0, 0.0, -4.0), glm::vec3(0.0, 1.0, 0.0));
+    glm::mat4 projection = glm::perspective(45.0f, 1.0f * (float) _width / (float) _height, 0.1f, 100.0f);
+    mvp = projection * view * model;
+
     while (!glfwWindowShouldClose(window)) {
         glUseProgram(program);
 
@@ -417,6 +540,8 @@ void Renderer::mainLoop(GLFWwindow* window) {
         if (!_buffers)
             init_buffers();
 
+        glfwPollEvents();
+
         if (shape_stack != nullptr) {
             logic();
             render();
@@ -425,8 +550,6 @@ void Renderer::mainLoop(GLFWwindow* window) {
         // TODO: FPS
 
         glfwSwapBuffers(window);
-
-        glfwPollEvents();
     }
 }
 
@@ -448,7 +571,6 @@ int Renderer::init() {
         return -1;
     }
 
-
     std::cout << glGetString(GL_VERSION) << std::endl;
 
     if (_init() < 0)
@@ -458,6 +580,8 @@ int Renderer::init() {
 
 int Renderer::open() {
     glfwSetFramebufferSizeCallback(_window, Input::onResize);
+    glfwSetMouseButtonCallback(_window, Input::onMouse);
+    glfwSetKeyCallback(_window, Input::onKeyboard);
 
     mainLoop(_window);
 
@@ -472,21 +596,6 @@ int main() {
     if (renderer->init() != 0) {
         fprintf(stderr, "Failed to init renderer\n");
         return 1;
-    }
-
-    // TODO: Add Movement
-    // TODO: Add Control from python (ctypes)
-    // TODO: Add Minecraft Textures (Like we had in Open3D
-    // TODO: Add Custom structures (Stairs, Trapdoors, Fences, etc.)
-    // TODO: Add Transparency
-
-    int count = 75;
-    for (int x = 0; x < count; x++) {
-        for (int z = 0; z < count; z++) {
-            for (int y = -1; y < 1; y++) {
-                renderer->addVoxel(glm::fvec3(x * 1.2, y, z * 1.2), "minecraft:stone");
-            }
-        }
     }
 
     renderer->open();

@@ -177,9 +177,8 @@ class WorldSlice:
         """
         ret = WorldSlice()
 
-        step = min(step, rect.dx // 2, rect.dz // 2)
-
         chunk_rect = rect // 16
+        step = min(step, chunk_rect.dx // 2, chunk_rect.dz // 2)
         chunk_count = int(ceil(chunk_rect.area / (step * step)))
         start_time = time()
         print(f'Loading Slice Chunks (0 / {chunk_count})...')
@@ -274,7 +273,7 @@ class WorldSlice:
         self.heightmaps = np.zeros((len(self.heightmap_types), self.rect.dx, self.rect.dz), dtype=np.uint16)
         heightmap_converter = BitConverter(9, 256)
 
-        chunk_count = rect.area // (16 * 16)
+        chunk_count = int(ceil(rect.area / (16 * 16)))
         print(f'\nReading and Unpacking Chunk Data')
         start_time = time()
 

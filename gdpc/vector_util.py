@@ -708,9 +708,9 @@ class Box: # TODO: Add x1, y1, z1, x2, y2, z2, xl, yl, zl, add, div, mul, and tu
         if self._iz == self.end.z:
             self._iz = self.offset.z
             self._iy += 1
-            if self._iy == self.end.y:
-                self._iy = self.offset.y
-                self._ix += 1
+        if self._iy == self.end.y:
+            self._iy = self.offset.y
+            self._ix += 1
         res = self._ix, self._iy, self._iz
         self._iz += 1
         return res

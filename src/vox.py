@@ -1,7 +1,5 @@
-import builtins
 import numpy as np
 
-from gdpc.template import Template
 
 default_palette = np.array([
     0x00000000, 0xffffffff, 0xffccffff, 0xff99ffff, 0xff66ffff, 0xff33ffff, 0xff00ffff, 0xffffccff, 0xffccccff, 0xff99ccff, 0xff66ccff, 0xff33ccff, 0xff00ccff, 0xffff99ff, 0xffcc99ff, 0xff9999ff,
@@ -158,7 +156,7 @@ class VoxReader:
 
     def _encode_model(self, model):
         result = [[b'SIZE', b'', []], [b'XYZI', b'', []]]
-        y, x, z = model.shape
+        x, y, z = model.shape
         result[0][1] += self._encode_int(x)
         result[0][1] += self._encode_int(z)
         result[0][1] += self._encode_int(y)

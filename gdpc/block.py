@@ -41,13 +41,11 @@ class Block:
     nbt:        Optional[str]         = None
     needsLatePlacement: bool          = False # Whether the block needs to be placed after its neighbors
 
-
     def transform(self, rotation: int = 0, flip: bvec3 = bvec3()):
         """ Transforms this block.\n
             Flips first, rotates second. """
         if not self.axis   is None: self.axis   = transformAxisString  (self.axis,   rotation)
         if not self.facing is None: self.facing = transformFacingString(self.facing, rotation, flip)
-
 
     def transformed(self, rotation: int = 0, flip: bvec3 = bvec3()):
         """ Returns a transformed copy of this block.\n
@@ -60,6 +58,15 @@ class Block:
             nbt        = self.nbt,
             needsLatePlacement = self.needsLatePlacement
         )
+
+    def blockState(self, rotation: int = 0, flip: bvec3 = bvec3()):
+        if self.axis is None and self.facing is None and self.otherState is None:
+            return {}
+        stateItems = {}
+        if self.axis is not None:
+            stateItems['axis'] = transformAxisString(self.axis, rotation)
+        if self.facing is not None:
+            stateItems['facing'] = transformFacingString(self.facing, rotation, flip)
 
 
     def blockStateString(self, rotation: int = 0, flip: bvec3 = bvec3()):
@@ -74,13 +81,11 @@ class Block:
         if not self.otherState is None: stateItems.append(self.otherState)
         return "[" + ",".join(stateItems) + "]"
 
-
     def __str__(self):
         data_string = self.blockStateString() + (self.nbt if self.nbt else "")
         if isinstance(self.name, str):
             return "" if self.name == "" else self.name + data_string
         return ",".join([(name if name == "" else name + data_string) for name in self.name])
-
 
     def __repr__(self):
         # This is used for model dumping; it needs to return a string that eval()'s to this Block.
@@ -98,20 +103,18 @@ class Block:
             + ")"
         )
 
-
     @staticmethod
-    def fromBlockCompound(blockCompound, rotation: int = 0, flip: bvec3 = bvec3()):
+    def fromNBT(nbt, rotation: int = 0, flip: bvec3 = bvec3()):
         """ Parses a block compound into a Block. """
         # TODO: parse NBT data
-        block = Block(str(blockCompound["Name"]))
-        if "Properties" in blockCompound:
-            properties = blockCompound["Properties"]
+        block = Block(str(nbt['Name']))
+        if 'Properties' in nbt:
+            properties = nbt['Properties']
             stateItems = []
             for key in properties:
                 value = str(properties[key])
                 if key in ["shape", "north", "east", "south", "west"]:
-                    # This is a late property. We drop it, but set needs_late_placement to True
-                    block.needsLatePlacement = True
+                    block.needsLatePlacement = True # This is a late property. We drop it, but set needs_late_placement to True
                 elif key == "axis":
                     block.axis = value
                 elif key == "facing":
@@ -122,5 +125,30 @@ class Block:
                 block.otherState = ",".join(stateItems)
 
         block.transform(rotation, flip)
+        return block
 
+    @staticmethod
+    def fromString(identifier, rotation: int = 0, flip: bvec3 = bvec3()):
+        if '[' in identifier:
+            block_id, nbt_data = identifier[:-1].split('[')
+        else:
+            block_id, nbt_data = identifier, ''
+        block = Block(block_id)
+
+        if nbt_data != '':
+            stateItems = []
+            for property in nbt_data.split(','):
+                key, value = property.split('=')
+                if key in ["shape", "north", "east", "south", "west"]:
+                    block.needsLatePlacement = True  # This is a late property. We drop it, but set needs_late_placement to True
+                elif key == "axis":
+                    block.axis = value
+                elif key == "facing":
+                    block.facing = value
+                else:
+                    stateItems.append(str(key) + "=" + value)
+            if stateItems:
+                block.otherState = ",".join(stateItems)
+
+        block.transform(rotation, flip)
         return block
