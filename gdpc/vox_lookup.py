@@ -653,21 +653,20 @@ MINECRAFT_TO_HEX = {
 }
 
 HEX_TO_MINECRAFT = {
+    # TODO: Add all palette.xml colors to this palette, and make override palettes for individual templates
     # Main colors in palette.xml
     "#000000": "minecraft:dark_oak_wood",  # B: Black
-    "#FFF1E8": "minecraft:white_wool",  # W: White
-    "#AB5236": "minecraft:spruce_wood",  # N: Brown
-    "#00E436": "minecraft:spruce_leaves",  # G: Green
-    "#FFEC27": "minecraft:yellow_wool",  # Y: Yellow
-    "#29ADFF": "minecraft:blue_wool",  # U: Blue
-    "#FF004D": "minecraft:red_wool",  # R: Red
-    "#FF6C24": "minecraft:orange_wool",  # o: Orange
-    "#4B692F": "minecraft:green_wool",  # J: Jungle
-    "#00B543": "minecraft:lime_wool",  # g: Green
-    "#49333B": "minecraft:brown_wool",  # d: Dead, Dark
-    "#696A6A": "minecraft:glowstone",  # l: Light
-    "#FFA300": "minecraft:yellow_wool",  # O: Orange
-    "#E4BB40": "minecraft:stone",  # H: Honey
+    '#00B543': "minecraft:grass",  # g - Green
+    '#FF6C24': "minecraft:dirt",  # o - Orange
+    '#29ADFF': "minecraft:cyan_stained_glass",  # U - Blue
+    '#49333B': "minecraft:dark_oak_wood",  # d - Dead, Dark
+    '#696A6A': "minecraft:gray_concrete",  # l - Light
+    '#FFF1E8': "minecraft:quartz_block",  # W - White
+    '#4B692F': "minecraft:grass_block",  # J - Jungle
+    '#E4BB40': "minecraft:gold_block",  # H - Honey
+    '#FFEC27': 'minecraft:glowstone', # Y - Yellow
+    '#AB5236': "minecraft:dark_oak_wood",  # N - Brown
+    '#FFA300': "minecraft:light_gray_concrete",  # O - Orange
 
     # Chosen colors for minecraft blocks
     "#9eb238": "minecraft:slime_block",
@@ -1063,3 +1062,25 @@ HEX_TO_MINECRAFT = {
     "#562c45": "minecraft:stripped_warped_hyphae",
     "#14b45d": "minecraft:warped_wart_block",
 }
+<<<<<<< HEAD
+=======
+
+VOX_TO_MINECRAFT = {
+    '#00e436': {
+        'birch_forest': 'minecraft:birch_leaves',
+        'forest': 'minecraft:spruce_leave',
+        'mountains': 'minecraft:oak_leaves',
+        'taiga': 'minecraft:acacia_leaves',
+        'jungle': 'minecraft:jungle_leaves',
+        'snowy': 'minecraft:dark_oak_leaves',
+    },
+    '#ab5236': {
+        'birch_forest': 'minecraft:birch_wood',
+        'forest': 'minecraft:spruce_wood',
+        'mountains': 'minecraft:oak_wood',
+        'taiga': 'minecraft:acacia_wood',
+        'jungle': 'minecraft:jungle_wood',
+        'snowy': 'minecraft:dark_oak_wood',
+    }
+}
+>>>>>>> a18b7bdf05b0014806852514ab9d52022da4e022
