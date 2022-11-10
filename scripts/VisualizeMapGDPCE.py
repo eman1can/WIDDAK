@@ -9,8 +9,6 @@ __licence__   = "MIT"
 from os import getcwd, environ
 from os.path import split
 
-from gdpceu.template import Template
-
 script_path = getcwd()
 while not script_path.endswith('WIDDAK'):
     script_path = split(script_path)[0]
@@ -43,6 +41,8 @@ from math import ceil, sqrt, pow
 renderer = Renderer()
 renderer.set_default_viewer()
 
+
+
 # print(ceil(pow(len(SIMPLE_TEXTURES), 1/3)))
 #
 # palette_size = ceil(pow(len(SIMPLE_TEXTURES), 1/3))
@@ -56,11 +56,17 @@ renderer.set_default_viewer()
 # renderer.make_3d_template_render(Template('Block Palette', 0, 0, template_data), xs=1, zs=1)
 # renderer.show_3d_render()
 rect = Rect.from_corners(0, 0, 128, 128)
+print("rect")
 world_slice = getWorldSlice(rect)
+print("w_s")
 renderer.make_3d_render(rect, world_slice, fill_mode='rm')
+print("made3")
 renderer.show_3d_render()
+print("shown3")
 renderer.make_2d_render(rect, world_slice)
+print("made2")
 renderer.show_2d_render()
+print("shown2")
 exit(0)
 
 # vox_dir = join('blueprints', 'vox')
