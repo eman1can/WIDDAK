@@ -1,7 +1,22 @@
+# Path Fixing Code - Must Be First
+from os import getcwd, environ, chdir, listdir
+from os.path import split, join
+
+script_path = getcwd()
+while not script_path.endswith('WIDDAK'):
+    script_path = split(script_path)[0]
+    chdir(script_path)
+if 'PYTHONPATH' in environ:
+    if script_path + ';' not in environ['PYTHONPATH']:
+        environ['PYTHONPATH'] += script_path + ';'
+else:
+    environ['PYTHONPATH'] = script_path
+# End Path Fixing Code
+
 # Detect Minecraft Installation Location
 from os import getcwd, listdir, symlink, remove
 from os.path import exists, join
-from gdpceu.common import get_minecraft_location
+from gdpc.common import get_minecraft_location
 
 save_location = join(get_minecraft_location(), 'saves')
 

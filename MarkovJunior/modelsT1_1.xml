@@ -1,0 +1,7 @@
+<models>
+	<model name="ModernHouse" length="9" width="9" height="4" amount="4"/>
+</models>
+
+<!--
+ Runs modern house once
+-->
