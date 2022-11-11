@@ -1,27 +1,34 @@
 <sequence values="BWNMmTyKYRALkFGCcXwJoHfaZEhldUOg" symmetry="(xy)" folder = "modelsT1_2">
 
-	<!--        TODO - You need to know which one is which coming in, so that the order is correct. Otherwise void blocks and non-void blocks (or any color) will get swapped around.-->
-	<!--        <one fin = "EmptyModernHouse" inlegend = "B"-->
-	<!--             fout = "ModernHouseMOD1_73618823" outlegend = "MmTyKYRALkFGCcXwJoHfaZEhBlWdUONg"/>-->
-
-	<!--        <one fin = "EmptyModernHouse" inlegend = "B"-->
-	<!--             fout = "ModernHouseMOD1_73618823" outlegend = "gNOUdWlBhEZafHoJwXcCGFkLARYKyTmM"/>-->
-
-	<!--<one fin = "EmptyModernHouse" inlegend = "B"
-		 fout = "ModernHouseMOD1_73618823" outlegend = "BWNMmTyKYRXAD"/>-->
 
 	<one fin = "EmptyModernHouse" inlegend = ""
 		 fout = "ModernHouseOutput" outlegend = ""/>
 	<all in="Z" out="B"/>
 
-<!--	<one fin = "ModernHouseOutput" inlegend = ""-->
-<!--		 fout = "ModernHouseOutput" outlegend = ""/>-->
+	<sequence>
+	First, add parapet greenery
+	<all>
+		<rule fin = "parapet1" inlegend = "" fout = "parapet1-new1" outlegend="" p="1.0" />
+		<rule fin = "parapet1" inlegend = "" fout = "parapet1-new2" outlegend="" p="1.0" />
+		<rule fin = "parapet1" inlegend = "" fout = "parapet1-new3" outlegend="" p="1.0" />
+		<rule fin = "parapet1" inlegend = "" fout = "parapet1" outlegend="" p="0.5" />
+	</all>
+	</sequence>
 
-<!--	<one fin = "corner" inlegend = "BlWdUONgJoHfaZEhLkFGCcXwMmTyKYR" fout = "corner_new" outlegend="BlWdUONgJoHfaZEhLkFGCcXwMmTyKYR"/>-->
-<!--	<one fin = "corner" inlegend = "BN" fout = "corner_new" outlegend="BNW"/>-->
+	<!--	Add balcony decorations-->
+	<all>
+		<rule fin = "balcony1" inlegend = "" fout = "balcony1-bush" outlegend="" p="0.75" />
+		<rule fin = "balcony1" inlegend = "" fout = "balcony1-pot1" outlegend="" p="0.5" />
+		<rule fin = "balcony1" inlegend = "" fout = "balcony1-anvil" outlegend="" p="0.05"/>
+	</all>
 
-<!--	Add balcony decorations-->
-	<one fin = "balcony1" inlegend = "" fout = "balcony1-bush" outlegend="" p="0.5" />
+
+
+	<all>
+		<rule fin = "patio1" inlegend = "" fout = "patio1-table1" outlegend="" p="1.0" />
+<!--		<rule fin = "patio1" inlegend = "" fout = "patio1" outlegend="" p="0.75" />-->
+	</all>
+
 
 
 
