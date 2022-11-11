@@ -24,7 +24,7 @@ def run_markov():
     os.chdir(s_cwd)
     # TODO: Utilize 3D Renderer to show VOX Output
 
-def run_multiple_markov():
+def run_multiple_markov(num: int):
 
     folder_name = "modelsT1_2"
 
@@ -34,14 +34,23 @@ def run_multiple_markov():
     # Enter the MarkovJunior directory
     os.chdir("MarkovJunior")
 
+    # Clear files in multiple_outputs
+    os.chdir("multiple_outputs")
+    fns = os.listdir()
+    for fn in fns:
+        os.remove(fn)
+    os.chdir("..")
+
     # Start Timer
     t1_start = perf_counter()
 
-    for i in range(10):
+    for i in range(num):
 
         success = False
 
         while not success:
+            # Note - if this keeps running, you may have a typo in your .xml file of the rules
+
             # Run the executable
             print("MarkovJunior start runnning.")
             p1 = subprocess.Popen(["MarkovJunior.exe", "modelsT1_1.xml"])
@@ -85,11 +94,15 @@ def run_multiple_markov():
         os.chdir("..")
     # End of number-of-buildings loop
     t1_stop = perf_counter()
-    print("Elapsed time for i=" + str(i) + " outputs: " + str(t1_stop-t1_start))
+    print("Elapsed time for " + str(num) + " outputs: " + str(t1_stop-t1_start))
 
     os.chdir(s_cwd)
 
+
+
+
+
 if __name__ == "__main__":
-    run_multiple_markov()
+    run_multiple_markov(4)
 
 

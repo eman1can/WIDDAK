@@ -10,21 +10,22 @@
 	<!--<one fin = "EmptyModernHouse" inlegend = "B"
 		 fout = "ModernHouseMOD1_73618823" outlegend = "BWNMmTyKYRXAD"/>-->
 
-	<one fin = "EmptyModernHouse" inlegend = "B"
-		 fout = "ModernHouseOutput" outlegend = "BlWdUONgJoHfaZEhLkFGCcXwMmTyKYR"/>
+	<one fin = "EmptyModernHouse" inlegend = ""
+		 fout = "ModernHouseOutput" outlegend = ""/>
+	<all in="Z" out="B"/>
 
-	<one fin = "corner" inlegend = "BN" fout = "corner_new" outlegend="BNW"/>
+<!--	<one fin = "ModernHouseOutput" inlegend = ""-->
+<!--		 fout = "ModernHouseOutput" outlegend = ""/>-->
 
-	<!--<one file = "corner" legend = "BW"/>-->
+<!--	<one fin = "corner" inlegend = "BlWdUONgJoHfaZEhLkFGCcXwMmTyKYR" fout = "corner_new" outlegend="BlWdUONgJoHfaZEhLkFGCcXwMmTyKYR"/>-->
+<!--	<one fin = "corner" inlegend = "BN" fout = "corner_new" outlegend="BNW"/>-->
 
-	<!--        <one in = "*********/*********/*********/*********/*********/*********/*********/*********/********* *********/*********/*********/*********/*********/*********/*********/*********/********* *********/*********/*********/*********/*********/*********/*********/*********/********* *********/*********/*********/*********/*********/*********/*********/*********/*********"-->
-	<!--             fout = "Test1" legend = "BW" steps = "1"/>-->
+<!--	Add balcony decorations-->
+	<one fin = "balcony1" inlegend = "" fout = "balcony1-bush" outlegend="" p="0.5" />
 
 
 
-	<!--    <map scale="9 9 4"  values = "BW" outputValues= "BW" folder = "ModernHouseMOD2" regular="False">-->
-	<!--         -->
 
-	<!--     </map>-->
+
 
 </sequence>
