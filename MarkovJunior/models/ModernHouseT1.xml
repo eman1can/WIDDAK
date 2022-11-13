@@ -11,7 +11,7 @@
 		<rule fin = "parapet1" inlegend = "" fout = "parapet1-new1" outlegend="" p="1.0" />
 		<rule fin = "parapet1" inlegend = "" fout = "parapet1-new2" outlegend="" p="1.0" />
 		<rule fin = "parapet1" inlegend = "" fout = "parapet1-new3" outlegend="" p="1.0" />
-		<rule fin = "parapet1" inlegend = "" fout = "parapet1" outlegend="" p="0.5" />
+<!--		<rule fin = "parapet1" inlegend = "" fout = "parapet1" outlegend="" p="0.5" />-->
 	</all>
 	</sequence>
 
@@ -26,8 +26,17 @@
 
 	<all>
 		<rule fin = "patio1" inlegend = "" fout = "patio1-table1" outlegend="" p="1.0" />
-<!--		<rule fin = "patio1" inlegend = "" fout = "patio1" outlegend="" p="0.75" />-->
+		<rule fin = "patio1" inlegend = "" fout = "patio1" outlegend="" p="0.75" />
 	</all>
+
+
+<!--	<all>-->
+<!--		<rule fin = "roofCorner1" inlegend = "" fout = "roofCorner1-mod1" outlegend="" p="1.0" />-->
+<!--	</all>-->
+
+<!--	<all>-->
+<!--		<rule fin = "red-roof1" inlegend = "" fout = "red-red1" outlegend="" p="1.0" />-->
+<!--	</all>-->
 
 
 

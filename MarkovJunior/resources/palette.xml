@@ -1,4 +1,9 @@
 ﻿<colors>
+
+
+  <color symbol="!" value="686868" comment="Vines"/>
+
+
   <color symbol="B" value="000000" comment="Black"/>
   <color symbol="I" value="1D2B53" comment="Indigo"/>
   <color symbol="P" value="7E2553" comment="Purple"/>
