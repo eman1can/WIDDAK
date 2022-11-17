@@ -34,3 +34,5 @@ scikit-image~=0.19.3
 argparse~=1.4.0
 pandas~=1.2.1
 bs4~=0.0.1
+future~=0.18.2
+imageio~=2.20.0

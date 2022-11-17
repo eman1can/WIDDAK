@@ -38,14 +38,15 @@ message("${GLEW_LIB}")
 message("${SDL2_LIB}")
 message("${SDL2_IMAGE_LIB}")
 
-add_executable(GLFWTest glfw.cpp shader_utils.cpp)
-target_link_libraries(GLFWTest ${GLEW_LIB} ${GLFW_LIB} ${SDL2_LIB} opengl32.lib)
-target_include_directories(GLFWTest PRIVATE GLFW/include)
-target_include_directories(GLFWTest PRIVATE GLEW/include)
-target_include_directories(GLFWTest PRIVATE SDL2/include)
-
-add_executable(VoxelRenderer voxel.cpp shader_utils.cpp)
+add_executable(VoxelRenderer
+        src/renderer.cpp
+        src/input.cpp
+        src/core.cpp
+        src/shader_utils.cpp
+        src/shape.cpp
+        src/main.cpp)
 target_link_libraries(VoxelRenderer ${GLEW_LIB} ${GLFW_LIB} ${SDL2_IMAGE_LIB} ${SDL2_LIB} opengl32.lib)
+target_include_directories(VoxelRenderer PRIVATE include)
 target_include_directories(VoxelRenderer PRIVATE GLFW/include)
 target_include_directories(VoxelRenderer PRIVATE GLEW/include)
 target_include_directories(VoxelRenderer PRIVATE SDL2/include)
@@ -54,8 +55,15 @@ target_include_directories(VoxelRenderer PRIVATE GLM)
 
 project(LibVoxel C)
 set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
-add_library(LibVoxel SHARED voxel.cpp shader_utils.cpp)
+add_library(LibVoxel SHARED
+        src/renderer.cpp
+        src/input.cpp
+        src/core.cpp
+        src/shader_utils.cpp
+        src/shape.cpp
+        src/main.cpp)
 target_link_libraries(LibVoxel ${GLEW_LIB} ${GLFW_LIB} ${SDL2_IMAGE_LIB} ${SDL2_LIB} opengl32.lib)
+target_include_directories(LibVoxel PRIVATE include)
 target_include_directories(LibVoxel PRIVATE GLFW/include)
 target_include_directories(LibVoxel PRIVATE GLEW/include)
 target_include_directories(LibVoxel PRIVATE SDL2/include)

@@ -13,8 +13,9 @@ from typing import List, Optional, Sequence, Union
 import numpy as np
 from glm import ivec3
 
+from amulet.api.block import Block
+
 from . import lookup
-from .block import Block
 from .interface import Interface, getGlobalInterface
 from .vector_util import Box, Rect
 

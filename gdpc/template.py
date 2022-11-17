@@ -1,13 +1,12 @@
-import tkinter
-
+import numpy as np
 from glm import ivec3
 
 from sections.Blueprints.identifiers import ID_TO_NAME
-from .block import Block
+from amulet.api.block import Block
 from .color import Color
-from .lookup import BIOMES, PALETTE, VOX_COLOR_MAP
+from .lookup import BIOMES, BIOMES_NAME_TO_INDEX, PALETTE
 from .vector_util import Box
-from .vox_lookup import HEX_TO_MINECRAFT
+from .vox_lookup import HEX_TO_MINECRAFT, VOX_TO_MINECRAFT
 from .worldLoader import WorldSlice
 
 NO_BIOME = -1
@@ -42,31 +41,43 @@ class TemplateManager:
 
 class Template:
     @staticmethod
-    def from_vox_model(name, model, palette):
+    def from_vox_model(name, model, palette, palette_key, biome):
         y, x, z = model.shape
         output_model = [[[None for _ in range(z)] for _ in range(x)] for _ in range(y)]
         color = Color({})
-        for yi in range(y):
-            for xi in range(x):
-                for zi in range(z):
-                    ix = model[yi][xi][zi]
-                    hex_color = '#' + color.int_bgr_hex_to_string(int(palette[ix]))
-                    blockID = HEX_TO_MINECRAFT[hex_color]
-                    output_model[yi][xi][zi] = Block(blockID)
-        return Template(name, 0, 0, output_model)
+
+        specific_palette = None
+        if palette_key in VOX_TO_MINECRAFT:
+            specific_palette = VOX_TO_MINECRAFT[palette_key]
+
+        for xi, yi, zi in Box.from_box(0, 0, 0, x, y, z).loop():
+            ix = model[yi][xi][zi]
+            hex_color = '#' + color.int_bgr_hex_to_string(int(palette[ix]))
+
+            blockID = 'minecraft:air'
+            if hex_color in specific_palette:
+                if isinstance(specific_palette[hex_color], str):
+                    blockID = specific_palette[hex_color]
+                else:
+                    blockID = specific_palette[hex_color][biome]
+
+            output_model[yi][xi][zi] = Block.from_string_blockstate(blockID)
+        # TODO: Add Cleanup algorithm for stairs, trapdoors, etc.
+        bix = BIOMES_NAME_TO_INDEX[biome]
+        return Template(name, bix, 0, output_model)
 
     @staticmethod
     def from_world_slice(name, world_slice: WorldSlice, area: Box):
         data = [[["" for _ in range(area.dz)] for _ in range(area.dx)] for _ in range(area.dy)]
         for x, y, z in area.loop():
-            data[y - area.y1][x - area.x1][z - area.z1] = Block.fromNBT(world_slice.get_block_data_at(ivec3(x, y, z)))
+            data[y - area.y1][x - area.x1][z - area.z1] = world_slice.get_block_data_at(ivec3(x, y, z))
         return Template(name, 0, 0, data)
 
     def __init__(self, name, base_bi, var_ix, data):
         self._name = name
         self._base_bi = base_bi
         self._variation = var_ix
-        self._data = data
+        self._data: list[list[list[Block]]] = data
 
         yl = len(data)
         xl = len(data[0])
@@ -98,22 +109,44 @@ class Template:
         output = ''
         max_name_size = 0
         # 10 11 12
-        for x, y, z in Box(ivec3(0, 0, 0), self.shape):
-            blockID = self._data[y][x][z].name
+        for x, y, z in Box(ivec3(0, 0, 0), self.shape).loop():
+            blockID = self._data[y][x][z].namespaced_name
             max_name_size = max(max_name_size, len(ID_TO_NAME[blockID]))
         for y in self._data:
             for x in y:
                 output += '|'
                 for z in x:
-                    output += ID_TO_NAME[z.name].center(max_name_size) + ' '
+                    output += ID_TO_NAME[z.namespaced_name].center(max_name_size) + ' '
                 output += '|\n'
             output += '-' * ((max_name_size + 1) * len(y[0]) + 2) + '\n'
         return output
 
+    def _exists(self, block: Block):
+        return block is not None and block.base_name != 'air'
+
+    def _get_relations(self):
+        # 0000 0000
+        # Front, Top, Back, Bottom, Left, Right
+        x, y, z = self.shape
+        relations = np.zeros((y, x, z), np.uint8)
+        for xi, yi, zi in Box(ivec3(0, 0, 0), self.shape).loop():
+            res = 0
+            res |= zi + 1 < z and self._exists(self._data[yi][xi][zi + 1])
+            res |= (yi + 1 < y and self._exists(self._data[yi + 1][xi][zi])) << 1
+            res |= (zi - 1 >= 0 and self._exists(self._data[yi][xi][zi - 1])) << 2
+            res |= (yi - 1 >= 0 and self._exists(self._data[yi - 1][xi][zi])) << 3
+            res |= (xi - 1 >= 0 and self._exists(self._data[yi][xi - 1][zi])) << 4
+            res |= (xi + 1 < x and self._exists(self._data[yi][xi + 1][zi])) << 5
+            relations[yi][xi][zi] = res
+        return relations
+
     def loop(self):
-        for x, y, z in Box(ivec3(0, 0, 0), self.shape):
+        relations = self._get_relations()
+        for x, y, z in Box(ivec3(0, 0, 0), self.shape).loop():
             block = self._data[y][x][z]
-            yield x, y, z, block.name, block.blockStateString()
+            if block is None:
+                continue
+            yield x, y, z, relations[y][x][z], block
 
     def get_biome_variation(self, biome_index):
         pass  # TODO: Add function to vary buildings given a biome
@@ -122,19 +155,17 @@ class Template:
         if not path.endswith('.template'):
             path += '.template'
         ids = set()
-        for x, y, z in Box(ivec3(0, 0, 0), self.shape):
+        for x, y, z in Box(ivec3(0, 0, 0), self.shape).loop():
             block = self._data[y][x][z]
-            blockID = block.name + block.blockStateString()
-            ids.add(blockID)
+            ids.add(block.blockstate)
         ids = list(ids)
 
         id_count = len(ids)
         id_lengths = [len(x) - len('minecraft:') for x in ids]
         indices = []
-        for x, y, z in Box(ivec3(0, 0, 0), self.shape):
+        for x, y, z in Box(ivec3(0, 0, 0), self.shape).loop():
             block = self._data[y][x][z]
-            blockID = block.name + block.blockStateString()
-            indices.append(ids.index(blockID))
+            indices.append(ids.index(block.blockstate))
 
         with open(path, 'wb') as file:
             file.write(int.to_bytes(len(self._name), 2, 'little'))
@@ -175,5 +206,5 @@ class Template:
             data = [[['' for _ in range(z)] for _ in range(x)] for _ in range(y)]
             for x, y, z in Box.from_box(0, 0, 0, x, y, z).loop():
                 index = int.from_bytes(file.read(1), 'little')
-                data[y][x][z] = Block.fromString(identifiers[index])
+                data[y][x][z] = Block.from_string_blockstate(identifiers[index])
             return Template(name, biome_index, variation_index, data)
