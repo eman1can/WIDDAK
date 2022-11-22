@@ -68,7 +68,12 @@ def clear_build_area():
     # print(to_replace)
     place_block_at(air, ivec3(0, 0, 0), to_replace)
 
-
+# Example of setting up parameters for visualize_vox_template:
+#
+# template = create_template_from_vox(filepath1, 'Modern House', 'modern_house', 'jungle')
+# location = [70, 130, 70]
+# visualize_vox_template(template, location)
+#
 def visualize_vox_template(template, location=None):
     # Get the build area
     buildArea = getBuildArea()
@@ -172,6 +177,7 @@ filepath1 = 'MarkovJunior/resources/rules/ModernHouseMOD2/ModernHouseMOD1_736188
 filepath2 = 'sections/MarkovJunior/output/EthanTree_1136010046.vox'
 filepath3 = 'MarkovJunior/resources/Apartemazements_722238551.vox'
 filepath4 = 'MarkovJunior/resources/TreeV2_2120272460.vox'
+filepath5 = 'MarkovJunior/multiple_outputs/ModernHouseOutput3.vox'
 
 # template_path = create_template_from_vox(filepath4, 'forest')
 # location = [100, 130, 80]
@@ -187,7 +193,7 @@ filepath4 = 'MarkovJunior/resources/TreeV2_2120272460.vox'
 
 
 clear_build_area()
-template = create_template_from_vox(filepath1, 'Modern House', 'modern_house', 'jungle')
+template = create_template_from_vox(filepath5, 'Modern House', 'modern_house', 'jungle')
 location = [70, 130, 70]
 visualize_vox_template(template, location)
 

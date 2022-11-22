@@ -1054,14 +1054,21 @@ HEX_TO_MINECRAFT = {
 VOX_TO_MINECRAFT = {  # TODO: Create util function for going from specific biome to general biome
     'modern_house': {
         "#000000": 'minecraft:air',  # B: Black
-        '#00B543': 'minecraft:grass',  # g - Green
+        '#00B543': {  # g - Green
+            'birch_forest': 'minecraft:birch_leaves',
+            'forest': 'minecraft:spruce_leaves',
+            'mountains': 'minecraft:oak_leaves',
+            'taiga': 'minecraft:acacia_leaves',
+            'jungle': 'minecraft:jungle_leaves',
+            'snowy': 'minecraft:dark_oak_leaves',
+        },
         '#FF6C24': 'minecraft:dirt',  # o - Orange
         '#29ADFF': 'minecraft:cyan_stained_glass',  # U - Blue
-        '#49333B': 'minecraft:dark_oak_planks',  # d - Dead, Dark
+        '#49333B': 'minecraft:black_concrete',  # d - Dead, Dark
         '#696A6A': 'minecraft:gray_concrete',  # l - Light
         '#FFF1E8': 'minecraft:quartz_block',  # W - White
         '#4B692F': 'minecraft:grass_block',  # J - Jungle
-        '#E4BB40': 'minecraft:gold_block',  # H - Honey
+        '#E4BB40': 'minecraft:honey_block',  # H - Honey
         '#FFEC27': 'minecraft:glowstone',  # Y - Yellow
         '#AB5236': {  # N - Brown
             'birch_forest': 'minecraft:birch_planks',
