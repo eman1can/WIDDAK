@@ -12,6 +12,7 @@ __year__ = 2022
 from typing import Optional
 
 import requests
+from amulet.api.block import Block
 from glm import ivec3
 from requests.exceptions import ConnectionError, ReadTimeout
 
@@ -40,32 +41,37 @@ def put(*args, **kwargs):
         raise ConnectionError("Connection could not be established! (is Minecraft running?)")
 
 
-def getBlock(point: ivec3):
+def get_block(point: ivec3):
     """ Return the block ID from the world """
     return get(f'http://localhost:9000/blocks?x={point.x}&y={point.y}&z={point.z}')
 
 
-def placeBlock(point: ivec3, blockID, doBlockUpdates=True, flags=None):
+def place_block(block: Block, point: ivec3 = ivec3(), updates=True, flags=None):
     """ Place one or multiple blocks in the world """
-    if flags is not None:
-        queryParam = f"customFlags={flags}"
-    else:
-        queryParam = f"doBlockUpdates={doBlockUpdates}"
-
-    if point is None:
-        point = ivec3()
-
+    queryParam = f"customFlags={flags}" if flags is not None else f"doBlockUpdates={updates}"
     url = f'http://localhost:9000/blocks?x={point.x}&y={point.y}&z={point.z}&{queryParam}'
+    return put(url, block.full_blockstate).text.strip()
 
-    response = put(url, blockID).text.strip()
-    return response
+
+def place_block_at(block: Block, origin: ivec3, points: list[ivec3], updates=True, flags=None):
+    body = '\n'.join(['~{} ~{} ~{} {}'.format(p.x, p.y, p.z, block.full_blockstate) for p in points])
+    queryParam = f"customFlags={flags}" if flags is not None else f"doBlockUpdates={updates}"
+    url = f'http://localhost:9000/blocks?x={origin.x}&y={origin.y}&z={origin.z}&{queryParam}'
+    return put(url, body).text.strip()
+
+
+def place_blocks(blocks: list[tuple[Block, ivec3]], origin: ivec3, updates=True, flags=None):
+    body = '\n'.join(['~{} ~{} ~{} {}'.format(p.x, p.y, p.z, block.full_blockstate) for block, p in blocks])
+    queryParam = f"customFlags={flags}" if flags is not None else f"doBlockUpdates={updates}"
+    url = f'http://localhost:9000/blocks?x={origin.x}&y={origin.y}&z={origin.z}&{queryParam}'
+    return put(url, body).text.strip()
 
 
 def sendBlocks(blockList, point: Optional[ivec3] = None, doBlockUpdates=True, customFlags=None):
     """ Take a list of blocks and place them into the world in one go """
     body = str.join("\n", ['~{} ~{} ~{} {}'.format(*bp) for bp in blockList])
 
-    return placeBlock(point, body, doBlockUpdates, customFlags)
+    return place_block(point, body, doBlockUpdates, customFlags)
 
 
 def runCommand(command):

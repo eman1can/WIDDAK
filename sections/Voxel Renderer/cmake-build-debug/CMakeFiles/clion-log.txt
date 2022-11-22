@@ -1,9 +1,9 @@
-C:\Users\Zoe\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\213.6461.75\bin\cmake\win\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=C:/Users/Zoe/AppData/Local/JetBrains/Toolbox/apps/CLion/ch-0/213.6461.75/bin/ninja/win/ninja.exe -G Ninja F:\CodeProjects\CLionProjects\OpenGL
+C:\Users\Zoe\AppData\Local\JetBrains\Toolbox\apps\CLion\ch-0\213.6461.75\bin\cmake\win\bin\cmake.exe -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=C:/Users/Zoe/AppData/Local/JetBrains/Toolbox/apps/CLion/ch-0/213.6461.75/bin/ninja/win/ninja.exe -G Ninja "F:\CodeProjects\PyCharmProjects\WIDDAK\sections\Voxel Renderer"
 Windows 64-bit
-F:/CodeProjects/CLionProjects/OpenGL/GLFW/win64/glfw3.lib
-F:/CodeProjects/CLionProjects/OpenGL/GLEW/win64/glew32.lib
-F:/CodeProjects/CLionProjects/OpenGL/SDL2/win64/sdl2.lib
-F:/CodeProjects/CLionProjects/OpenGL/SDL2_IMAGE/win64/SDL2_image.lib
+F:/CodeProjects/PyCharmProjects/WIDDAK/sections/Voxel Renderer/GLFW/win64/glfw3.lib
+F:/CodeProjects/PyCharmProjects/WIDDAK/sections/Voxel Renderer/GLEW/win64/glew32.lib
+F:/CodeProjects/PyCharmProjects/WIDDAK/sections/Voxel Renderer/SDL2/win64/sdl2.lib
+F:/CodeProjects/PyCharmProjects/WIDDAK/sections/Voxel Renderer/SDL2_IMAGE/win64/SDL2_image.lib
 -- Configuring done
 -- Generating done
--- Build files have been written to: F:/CodeProjects/CLionProjects/OpenGL/cmake-build-debug
+-- Build files have been written to: F:/CodeProjects/PyCharmProjects/WIDDAK/sections/Voxel Renderer/cmake-build-debug

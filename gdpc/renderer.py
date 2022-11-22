@@ -1,4 +1,7 @@
+import io
+import json
 from math import ceil, sqrt
+import matplotlib.pyplot as plt
 
 import cv2
 import numpy as np
@@ -10,7 +13,7 @@ from scipy.interpolate import interp1d
 import gdpc.lookup as lookup
 from .vector_util import Rect
 from .color import Color
-from .textures import IDENTIFIER_TO_TEXTURES, SIMPLE_TEXTURES
+# from .textures import IDENTIFIER_TO_TEXTURES, SIMPLE_TEXTURES
 
 
 class PhotoViewer(ImageShow.Viewer):
@@ -44,6 +47,8 @@ class Renderer:
 
         self._render_3d = None
         self._render_2d = None
+        self._legend = None
+
         self._viewer = None
         self._name = 'Render'
 
@@ -60,17 +65,44 @@ class Renderer:
 
     def _setup_render(self, world_slice, color_map):
         self._color_map = color_map if color_map is not None else Color({})
-        surface_index = world_slice.heightmap_types.index('MOTION_BLOCKING')
-        self._height_map = world_slice.heightmaps[surface_index]
+        self._height_map = world_slice.get_heightmap('MOTION_BLOCKING')
 
     def _setup_template_render(self, color_map):
         self._color_map = color_map if color_map is not None else Color({})
+
+    def _apply_legend(self, image: Image):
+        if self._legend is None:
+            return
+        colors = ['#' + hex(lookup.BIOME_COLORS[x] if x != -1 else 0xFF00C7)[2:] for x in self._legend]
+        labels = [lookup.BIOMES[x].replace('_', ' ').title() if x != -1 else "Missing Color" for x in self._legend]
+        f = lambda m, c: plt.plot([], [], marker=m, color=c, ls="none")[0]
+        handles = [f("s", colors[i]) for i in range(len(labels))]
+        legend = plt.legend(handles, labels, loc=3, framealpha=1, frameon=False)
+        fig = legend.figure
+        fig.canvas.draw()
+        bbox = legend.get_window_extent().transformed(fig.dpi_scale_trans.inverted())
+        img_buf = io.BytesIO()
+        fig.savefig(img_buf, format='png', dpi="figure", bbox_inches=bbox)
+        im = Image.open(img_buf)
+        new_width = image.width // 5
+        image.paste(im.resize((new_width, int(new_width / im.width * im.height))), (0, 0))
+        img_buf.close()
+
+    def _apply_topography(self):
+        if self._render_2d is None:
+            print('2d render not created!')
+            return self
+        gradientX = cv2.Scharr(self._height_map, cv2.CV_16S, 1, 0)
+        gradientY = cv2.Scharr(self._height_map, cv2.CV_16S, 0, 1)
+        brightness = np.expand_dims((gradientX + gradientY), 2).clip(-64, 64)
+        self._render_2d = (self._render_2d.astype('int16') + brightness).clip(0, 255)
 
     def show_2d_render(self):
         if self._render_2d is None:
             print('2d render not created!')
             return self
         pil_image = Image.fromarray(self._render_2d, mode='RGB')
+        self._apply_legend(pil_image)
         ImageShow.show(pil_image, self._name)
         return self
 
@@ -78,7 +110,8 @@ class Renderer:
         if self._render_2d is None:
             print('2d render not created!')
             return self
-        pil_image = Image.fromarray(self._render_2d, mode='RGB')
+        pil_image = Image.fromarray(self._render_2d.astype('uint8'), mode='RGB')
+        self._apply_legend(pil_image)
         pil_image.save(file_path)
         return self
 
@@ -107,43 +140,51 @@ class Renderer:
                     self._render_2d[wo + y, ho + x] = heatmap_color(norm[y][x])
         return self
 
-    def make_2d_world_render(self, rect: Rect, world_slice, color_map=None, title="World Render"):
+    def make_2d_surface_render(self, rect: Rect, world_slice, color_map=None, title="World Render"):
         self._setup_render(world_slice, color_map)
-        self._render_2d = np.zeros((*rect.size, 3), dtype=np.uint8)
+        self._render_2d = np.zeros((*rect.size, 3), dtype=np.uint32)
         self._name = title
-        for xix, rx in enumerate(range(rect.dx)):
-            for zix, rz in enumerate(range(rect.dz)):
-                y = self._height_map[rx, rz]
-                blockID = world_slice.get_relative_block_id_at(ivec3(rx, y, rz))
-                self._render_2d[zix, xix] = self._color_map.get_int_rgb(blockID)
-        return self
-
-    def make_2d_surface_biome_render(self, rect: Rect, world_slice, color_map=None, title="World Render"):
-        self._setup_render(world_slice, color_map)
-        self._render_2d = np.zeros((*rect.size, 3), dtype=np.uint8)
-        self._name = title
-        for xix, rx in enumerate(range(rect.dx)):
-            for zix, rz in enumerate(range(rect.dz)):
-                y = self._height_map[rx, rz]
-                biome_index = world_slice.get_relative_biome_at(ivec3(rx, y, rz))
-                self._render_2d[zix, xix] = self._color_map.rgb_hex_to_int_rgb(lookup.BIOME_COLORS[biome_index])
-        return self
-
-    def make_2d_topographic_render(self, rect: Rect, world_slice, color_map=None, title="World Render"):
-        self._setup_render(world_slice, color_map)
-        self._render_2d = np.zeros((*rect.size, 3), np.int32)
-        self._name = title
-        gradientX = cv2.Scharr(self._height_map, cv2.CV_16S, 1, 0)
-        gradientY = cv2.Scharr(self._height_map, cv2.CV_16S, 0, 1)
         for xix, rx in enumerate(range(rect.dx)):
             for zix, rz in enumerate(range(rect.dz)):
                 y = self._height_map[rx, rz]
                 blockID = world_slice.get_relative_block_id_at(ivec3(rx, y, rz))
                 self._render_2d[xix, zix] = self._color_map.get_int_rgb(blockID)
-        brightness = np.expand_dims((gradientX + gradientY).astype("int"), 2).clip(-64, 64)
-        self._render_2d += brightness
-        self._render_2d = self._render_2d.clip(0, 256).astype('uint8')
         return self
+
+    def make_2d_topographic_render(self, rect: Rect, world_slice, color_map=None, title="Topographic World Render"):
+        self.make_2d_surface_render(rect, world_slice, color_map, title)
+        self._apply_topography()
+        return self
+
+    def make_2d_surface_biome_render(self, rect: Rect, world_slice, color_map=None, title="Biome Render"):
+        self._setup_render(world_slice, color_map)
+        self._render_2d = np.zeros((*rect.size, 3), dtype=np.uint32)
+        self._name = title
+
+        self._legend = []
+        missing_biomes = set()
+        for xix, rx in enumerate(range(rect.dx)):
+            for zix, rz in enumerate(range(rect.dz)):
+                y = self._height_map[rx, rz]
+                biome_index = world_slice.get_relative_biome_at(ivec3(rx, y, rz))
+                biome_color = lookup.BIOME_COLORS[biome_index]
+
+                if biome_color == 0xFF00C7 and biome_index not in missing_biomes:
+                    print(lookup.BIOMES[biome_index], 'has no color')
+                    missing_biomes.add(biome_index)
+                if biome_index not in self._legend and biome_color != 0xFF00C7:
+                    self._legend.append(biome_index)
+                self._render_2d[xix, zix] = self._color_map.bgr_hex_to_int_rgb(biome_color)
+        if len(missing_biomes) > 0:
+            self._legend.append(-1)
+        return self
+
+    def make_2d_topographic_biome_render(self, rect: Rect, world_slice, color_map=None, title="Topographic Biome Render"):
+        self.make_2d_surface_biome_render(rect, world_slice, color_map, title)
+        self._apply_topography()
+        return self
+
+
     # def _render_cube(self, blockID, cx, cy, cz):
     #     nbt = {}
     #     if '[' in blockID:
@@ -253,25 +294,25 @@ class Renderer:
     #     o3d.io.write_image(file_path, image)
     #     return self
 
-    def make_2d_template_render(self, template, color_map=None):
-        self._setup_template_render(color_map)
-
-        yl = len(template)
-        xl = len(template[0])
-        zl = len(template[0][0])
-
-        self._render_2d = np.zeros((xl, zl, 3), dtype=np.uint8)
-
-        for x, z in loop2d(xl, zl):
-            for y in range(yl - 1, -1, -1):
-                if template[y][x][z] is None:
-                    continue
-                blockID = template[y][x][z]
-                hex_color = self._get_hex_color_for_id(blockID)
-                rgbc = self.hex_to_int_rgb(hex_color)
-                self._render_2d[x, z] = rgbc
-                break
-        return self
+    # def make_2d_template_render(self, template, color_map=None):
+    #     self._setup_template_render(color_map)
+    #
+    #     yl = len(template)
+    #     xl = len(template[0])
+    #     zl = len(template[0][0])
+    #
+    #     self._render_2d = np.zeros((xl, zl, 3), dtype=np.uint8)
+    #
+    #     for x, z in loop2d(xl, zl):
+    #         for y in range(yl - 1, -1, -1):
+    #             if template[y][x][z] is None:
+    #                 continue
+    #             blockID = template[y][x][z]
+    #             hex_color = self._get_hex_color_for_id(blockID)
+    #             rgbc = self.hex_to_int_rgb(hex_color)
+    #             self._render_2d[x, z] = rgbc
+    #             break
+    #     return self
 
     # def make_3d_template_render(self, template, color_map=None, xs=0, ys=0, zs=0):
     #     self._setup_template_render(color_map)

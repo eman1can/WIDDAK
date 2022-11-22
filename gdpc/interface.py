@@ -26,12 +26,13 @@ from concurrent import futures
 from random import choice
 
 from . import worldLoader
-from .block import Block
+from amulet.api.block import Block
 from .util import isign
 from .vector_util import Rect, Box, scaleToFlip3D
 from .toolbox import isSequence
 from .transform import Transform, toTransform
 from .worldLoader import WorldSlice
+from .amuletWorldLoader import WorldSlice as AmuletWorldSlice
 
 import gdpc.direct_interface as di
 
@@ -218,7 +219,7 @@ class Interface:
 
         return response
 
-    def placeBlock(self, point: ivec3, block: str, replace: Optional[Union[str, Sequence[str]]] = None, doBlockUpdates: Optional[str] = None, flags: Optional[bool] = None, local: bool = False):
+    def placeBlock(self, point: ivec3, block: Block, replace: Optional[Union[str, Sequence[str]]] = None, doBlockUpdates: Optional[str] = None, flags: Optional[bool] = None, local: bool = False):
         """ Place a block into the world
         Pass global coordinates or set local"""
         if replace is not None:
@@ -327,6 +328,7 @@ class Interface:
         if len(self._buffer) == self.bufferLimit:
             self.sendBufferedBlocks()
 
+
 globalInterface: Optional[Interface] = None
 globalWorldSlice: Optional[WorldSlice] = None
 globalBuildArea: Optional[Box] = None
@@ -385,18 +387,18 @@ def getBuildArea() -> Optional[Box]:
     return build_area
 
 
-def getWorldSlice(rect: Optional[Rect] = None, dat_file: Optional[str] = None, save_data: bool = False, step: int = 8) -> Optional[WorldSlice]:
+def getWorldSlice(rect: Optional[Rect] = None, world_path: Optional[str] = None, save_data: bool = False, step: int = 8) -> Optional[WorldSlice]:
     if rect.size.x < 0 or rect.size.y < 0:
         print('Gave getWorldSlide a negative area!')
         return None
     """ If dat_file is not None, will load a local file, optionally specified by rect. If None, then it will query the server, keeping world data in the cache if the save_data flag is set"""
-    if rect is None and dat_file is None:
+    if rect is None and world_path is None:
         print("Using default build area in getWorldSlice (0, 0, 128, 128)", file=sys.stderr)
         rect = Rect.from_rect(0, 0, 128, 128)
-    if dat_file is None:
+    if world_path is None:
         return worldLoader.WorldSlice.from_server(rect, save_data, step)
     else:
-        return worldLoader.WorldSlice.from_file(dat_file, rect)
+        return AmuletWorldSlice(world_path, rect)
 
 
 def runCommand(command: str) -> str:
