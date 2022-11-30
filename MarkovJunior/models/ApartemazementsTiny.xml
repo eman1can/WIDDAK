@@ -1,0 +1,77 @@
+<sequence values="BWN" symmetry="(xy)">
+
+  <prl in="B" out="W"/>
+  <prl in="***/***/*** ***/*W*/*** ***/***/***" out="***/***/*** ***/*B*/*** ***/***/***"/>
+  <prl in="B W" out="B N"/>
+  <wfc values="BYDAWP RFUENC" tileset="PathsTiny">
+
+
+    <rule in="W" out="Empty"/>
+    <rule in="N" out="Empty|Line|Up|Turn|X"/>
+
+    <prl in="B" out="C" comment="draw earth"/>
+    <prl in="C * *" out="B * *" comment="remove extra earth"/>
+    <prl in="C C" out="E N" comment="draw grass"/>
+    <prl in="C" out="N"/>
+
+<!--    Turn 25% of the yellow lights blue   -->
+    <prl in="Y" out="C" p="0.25" steps="1"/>
+    <prl in="Y" out="B"/>
+
+    <all comment="draw columns">
+      <rule in="D B" out="* F"/>
+      <rule in="F B" out="* F"/>
+    </all>
+
+    <all comment="remove extra columns">
+      <rule in="FF EE" out="BB EE"/>
+      <rule in="FF FD EE" out="FF BD EE"/>
+      <rule in="F B" out="B B"/>
+      <rule in="B F" out="B B"/>
+      <rule in="F P" out="B P"/>
+      <rule in="P* *F" out="** *B"/>
+    </all>
+
+    <all comment="draw corner columns">
+      <rule in="*A*/ADB/*B* ***/*B*/***" out="***/***/*** ***/*F*/***"/>
+      <rule in="F B" out="F F"/>
+    </all>
+
+
+    <all>
+      <rule in="DAD FBF FBF DAD" out="*** *R* *R* ***" />
+    </all>
+
+    <all>
+      <rule in="RFFR RFFR" out="RRRR RRRR" />
+      <rule in="DAD FRF FRF DAD FRF FRF DAD" out="*** *** *** FRF *** *** ***" />
+
+    </all>
+    <prl comment="forget structure">
+      <rule in="F" out="A"/>
+      <rule in="D" out="A"/>
+      <rule in="P" out="A"/>
+      <rule in="U" out="R"/>
+    </prl>
+    <prl in="AAAAA ARRRA ARRRA ARRRA ARRRA AAAAA" out="AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA"/>
+
+<!--    Draw down walls to the ground-->
+    <all>
+      <rule in="A B" out="A Y" />
+      <rule in="Y B" out="* Y" />
+      <rule in="Y E" out="F E" />
+    </all>
+
+    <all>
+      <rule in="Y F" out="F A" />
+    </all>
+
+    <one in="F" out="A" />
+    <one in="Y" out="B" />
+
+  </wfc>
+</sequence>
+
+<!--
+Some rendered outputs: https://github.com/mxgmn/Blog/blob/master/Apartemazements.md
+-->
