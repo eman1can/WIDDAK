@@ -192,8 +192,8 @@ filepath5 = 'MarkovJunior/multiple_outputs/ModernHouseOutput3.vox'
 # visualize_vox_template(template_path, location)
 
 
-clear_build_area()
-template = create_template_from_vox(filepath5, 'Modern House', 'modern_house', 'jungle')
-location = [70, 130, 70]
-visualize_vox_template(template, location)
+# clear_build_area()
+# template = create_template_from_vox(filepath5, 'Modern House', 'modern_house', 'jungle')
+# location = [70, 130, 70]
+# visualize_vox_template(template, location)
 
