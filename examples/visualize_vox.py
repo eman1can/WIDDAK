@@ -40,9 +40,8 @@ from glm import ivec2, ivec3, bvec3
 
 from gdpc.vector_util import addY, vecString, Rect, centeredSubRect, rectSlice
 from gdpc.util import eprint
-from gdpc.block import Block
+from amulet.api.block import Block
 from gdpc.interface import Interface, getBuildArea, getWorldSlice
-from gdpc.geometry import placeRect
 import json
 from gdpc.vox_lookup import HEX_TO_MINECRAFT
 
@@ -70,8 +69,8 @@ def visualize_vox_template(template_path, location=None):
     itf = Interface(addY(buildRect.offset))
 
     # Place build area indicator
-    maxHeight = int(np.max(heightmap))
-    placeRect(buildRect, maxHeight + 10, Block("orange_concrete"), width=1, itf=itf)
+    # maxHeight = int(np.max(heightmap))
+    # placeRect(buildRect, maxHeight + 10, Block("minecraft", "orange_concrete"), width=1, itf=itf)
 
     # Build the example structure in the center of the build area, at the mean height.
     rect = centeredSubRect(buildRect, CLEAR_AREA)
@@ -97,7 +96,7 @@ def visualize_vox_template(template_path, location=None):
                     if block is None:
                         continue
                     block = block.replace('dirt_path', 'grass_path')
-                    itf.place(Block(block), ivec3(ix, iy, iz), local=True)
+                    itf.place(Block("minecraft", block), ivec3(ix, iy, iz), local=True)
 
     # Flush block buffer
     itf.sendBufferedBlocks()
@@ -130,9 +129,7 @@ def convert_to_minecraft_blocks(vox_file):
 
 def create_template_from_vox(vox_filepath):
     # Read in the VOX file
-    vox_file = VoxFile(vox_filepath)
-    vox_file.read()
-    vox_file.close()
+    vox_file = VoxFile.from_file(vox_filepath)
 
     # Convert the VOX file to a minecraft template
     minecraft_template = convert_to_minecraft_blocks(vox_file)
@@ -144,7 +141,6 @@ def create_template_from_vox(vox_filepath):
         json_string = json.dumps(minecraft_template)
         file.write(json_string)
     return path
-
 
 filepath1 = 'MarkovJunior/resources/rules/ModernHouseMOD2/ModernHouseMOD1_73618823.vox'
 filepath2 = 'sections/MarkovJunior/output/EthanTree_1136010046.vox'
