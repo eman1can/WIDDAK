@@ -1088,103 +1088,63 @@ VOX_TO_MINECRAFT = {  # TODO: Create util function for going from specific biome
             'brick': 'minecraft:air', 
             'desert': 'minecraft:air', 
             'forest': 'minecraft:air', 
-            'snowy': 'minecraft:air', 
+            'snowy_tundra': 'minecraft:air', 
+            'snowy_forest': 'minecraft:air', 
         },        
         '#AB5236': { # Base Level
             'general': 'minecraft:dirt', 
             'brick': 'minecraft:dirt',   
-            'desert': 'minecraft:sand',   
+            'desert': 'minecraft:dirt',   
             'forest': 'minecraft:dirt',   
-            'snowy': 'minecraft:dirt', 
+            'snowy_tundra': 'minecraft:dirt',  
+            'snowy_forest': 'minecraft:dirt', 
         },  
         '#008751': { # Ground      
             'general': 'minecraft:grass_block',  
             'brick': 'minecraft:grass_block',  
             'desert': 'minecraft:sand',   
-            'forest': 'minecraft:grass_block',   
-            'snowy': 'minecraft:grass_block', 
+            'forest': 'minecraft:grass_block', 
+            'snowy_tundra': 'minecraft:snow_block',  
+            'snowy_forest': 'minecraft:snow_block', 
         },   
         '#C2C3C7': { # Walls
             'general': 'minecraft:quartz_block',  
             'brick': 'minecraft:bricks', 
             'desert': 'minecraft:smooth_sandstone',   
             'forest': 'minecraft:stone',   
-            'snowy': 'minecraft:dark_oak_wood', 
-        },  
-        '#FFF1E8': { # Inside Walls
-            'general': 'minecraft:quartz_block',  
-            'brick': 'minecraft:light_gray_concrete', 
-            'desert': 'minecraft:quartz_block',  
-            'forest': 'minecraft:quartz_block',  
-            'snowy': 'minecraft:cobblestone',  
+            'snowy_tundra': 'minecraft:cobblestone',  
+            'snowy_forest': 'minecraft:dark_oak_wood', 
         },   
+        '#5F574F': { # Top of walls
+            'general': 'minecraft:light_gray_concrete', 
+            'brick': 'minecraft:light_gray_concrete',   
+            'desert': 'minecraft:cut_sandstone',   
+            'forest': 'minecraft:oak_planks',
+            'snowy_tundra': 'minecraft:snow_block',  
+            'snowy_forest': 'minecraft:snow_block', 
+        },  
         '#FF004D': { # Walls Accented
             'general': 'minecraft:crimson_stem',   
             'brick': 'minecraft:light_gray_concrete', 
-            'desert': 'minecraft:crimson_stem',   
-            'forest': 'minecraft:crimson_stem',   
-            'snowy': 'minecraft:cobblestone', 
-        },  
-        '#5F574F': { # Roof
-            'general': 'minecraft:light_gray_concrete', 
-            'brick': 'minecraft: light_gray_concrete',   
-            'desert': 'minecraft:light_gray_concrete',   
-            'forest': 'minecraft:dark_oak_planks',   
-            'snowy': 'minecraft:snow_block', 
-        },  
+            'desert': 'minecraft:red_sandstone_wall',   
+            'forest': 'minecraft:stone',   
+            'snowy_tundra': 'minecraft:cobblestone',  
+            'snowy_forest': 'minecraft:dark_oak_wood', 
+        },   
+        '#FFF1E8': { # Roof
+            'general': 'minecraft:quartz_block',  
+            'brick': 'minecraft:light_gray_concrete', 
+            'desert': 'minecraft:quartz_block',  
+            'forest': 'minecraft:light_gray_concrete', 
+            'snowy_tundra': 'minecraft:spruce_planks',  
+            'snowy_forest': 'minecraft:cobblestone', 
+        }, 
         '#FFEC27': { # Decorative      
             'general': 'minecraft:lantern',  
-            'brick': 'minecraft: light_gray_concrete', 
-            'desert': 'minecraft:lantern',   
+            'brick': 'minecraft:lantern', 
+            'desert': 'minecraft:potted_cactus',   
             'forest': 'minecraft:lantern',   
             'snowy': 'minecraft:lantern',   
         },  
     },
-
-    'apartemazements': {
-        "#000000": 'minecraft:air',  
-        '#AB5236': 'minecraft:sand',
-        '#008751': 'minecraft:sand',         
-        '#FF004D': 'minecraft:red_sandstone_wall',       
-        '#C2C3C7': 'minecraft:smooth_sandstone',        
-        '#5F574F': 'minecraft:cut_sandstone',  
-        '#FFF1E8': 'minecraft:quartz_block',    
-        '#FFEC27': 'minecraft:potted_cactus',         
-    },
-
-    # 'apartemazements': {
-    #     "#000000": 'minecraft:air',  
-    #     '#AB5236': 'minecraft:dirt', # Base Level
-    #     '#008751': 'minecraft:grass_block', # Ground          
-    #     '#C2C3C7': 'minecraft:stone', # Walls     
-    #     '#FFF1E8': 'minecraft:quartz_block', # Inside walls    
-    #     '#FF004D': 'minecraft:crimson_stem', # Walls Accented
-    #     '#5F574F': 'minecraft:dark_oak_planks', # Roof    
-    #     '#FFEC27': 'minecraft:lantern', # Decorative  
-    # },
-
-    # Brick
-    # 'apartemazements': {
-    #     "#000000": 'minecraft:air',  
-    #     '#AB5236': 'minecraft:dirt', # Base Level
-    #     '#008751': 'minecraft:grass_block', # Ground          
-    #     '#C2C3C7': 'minecraft:bricks', # Walls     
-    #     '#FFF1E8': 'minecraft:quartz_block', # Inside walls    
-    #     '#FF004D': 'minecraft:light_gray_concrete', # Walls Accented
-    #     '#5F574F': 'minecraft:light_gray_concrete', # Roof    
-    #     '#FFEC27': 'minecraft:lantern', # Decorative  
-    # },
-
-    # Snowy
-    # 'apartemazements': {
-    #     "#000000": 'minecraft:air',  
-    #     '#AB5236': 'minecraft:dirt', # Base Level
-    #     '#008751': 'minecraft:grass_block', # Ground          
-    #     '#C2C3C7': 'minecraft:dark_oak_wood', # Walls     
-    #     '#FFF1E8': 'minecraft:cobblestone', # Inside walls    
-    #     '#FF004D': 'minecraft:cobblestone', # Walls Accented
-    #     '#5F574F': 'minecraft:snow_block', # Roof    
-    #     '#FFEC27': 'minecraft:lantern', # Decorative  
-    # },
-    
 }

@@ -113,9 +113,8 @@ def convert_to_hexcolor(orig_color):
     hex_color = '#' + color
     return hex_color
 
-def get_minecraft_block(hex_color, key, biome='forest'):
+def get_minecraft_block(hex_color, key, biome='snowy_tundra'):
     # return 'minecraft:air'
-
     hex_color = hex_color.upper()
     vox_mapping = VOX_TO_MINECRAFT.get(key)
     print(hex_color, key, biome)
@@ -178,5 +177,5 @@ filepath3 = 'MarkovJunior/resources/Apartemazements_722238551.vox'
 filepath4 = 'MarkovJunior/resources/SavedVoxels/AnotherCity.vox'
 template_path = create_template_from_vox(filepath4, 'apartemazements')
 # template_path = create_template_from_vox(filepath1, 'modern_house')
-location = [30, 100, 30]
+location = [4110, 68, -3803]
 visualize_vox_template(template_path, location)
