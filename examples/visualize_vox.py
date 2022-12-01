@@ -44,7 +44,7 @@ from gdpc.block import Block
 from gdpc.interface import Interface, getBuildArea, getWorldSlice
 from gdpc.geometry import placeRect
 import json
-from gdpc.vox_lookup import HEX_TO_MINECRAFT
+from gdpc.vox_lookup import HEX_TO_MINECRAFT, VOX_TO_MINECRAFT
 
 from src.vox import VoxFile
 
@@ -80,7 +80,6 @@ def visualize_vox_template(template_path, location=None):
     # Load a blueprint template
     f = open(template_path)
     template = json.load(f)
-    print(height)
 
     # Set the center of the template build area
     if (location):
@@ -103,8 +102,36 @@ def visualize_vox_template(template_path, location=None):
     itf.sendBufferedBlocks()
     itf.awaitBufferFlushes()
 
+# Convert VOX file colors to match colors in palette.xml
+def convert_to_hexcolor(orig_color):
+    color = hex(int(orig_color))
+    color = color.split('x')[1].zfill(8)[2:]
+    color = color[4:6] + color[2:4] + color[0:2]
+    # if color not in ('ffc7c3c2', 'ff27ecff'):
+    #     print(color, color[0:2], color[4:6], color[2:4])
+    # color = color[0:2] + color[4:6] + color[2:4]
+    hex_color = '#' + color
+    return hex_color
 
-def convert_to_minecraft_blocks(vox_file):
+def get_minecraft_block(hex_color, key, biome='forest'):
+    # return 'minecraft:air'
+
+    hex_color = hex_color.upper()
+    vox_mapping = VOX_TO_MINECRAFT.get(key)
+    print(hex_color, key, biome)
+    if vox_mapping and vox_mapping.get(hex_color):
+        if type(vox_mapping.get(hex_color)) == dict:
+            return vox_mapping.get(hex_color).get(biome)
+        return vox_mapping.get(hex_color)
+    minecraft_block = HEX_TO_MINECRAFT.get(hex_color)
+    if minecraft_block:
+        return minecraft_block
+    return 'minecraft:bedrock'
+
+# Return the minecraft block for the given hex color
+# Return bedrock if no match is found
+def convert_to_minecraft_blocks(vox_file, key):
+    all_colors = set()
 
     for model in vox_file.get_models():
         template = []
@@ -114,28 +141,27 @@ def convert_to_minecraft_blocks(vox_file):
                 row = []
                 for k in range(len(model[i][j])):
                     if model[i][j][k] != 0:
-                        minecraft_palette_index = model[i][j][k] - 1
-                        color = hex(vox_file.get_color_for_index(minecraft_palette_index))
-                        hex_color = '#' + color.split('x')[1].zfill(6) 
-                        minecraft_block = HEX_TO_MINECRAFT.get(hex_color)
-                        if minecraft_block is None:
-                            minecraft_block = list(HEX_TO_MINECRAFT.values())[minecraft_palette_index]
+                        minecraft_palette_index = model[i][j][k] 
+                        hex_color = convert_to_hexcolor(vox_file.get_color_for_index(minecraft_palette_index))
+                        minecraft_block = get_minecraft_block(hex_color, key)
                         row.append(minecraft_block)
+                        all_colors.add(hex_color.upper())
                     else:
                         row.append(None)
                 layer.append(row)
             template.append(layer)
+        print(all_colors)
         return template
     
 
-def create_template_from_vox(vox_filepath):
+def create_template_from_vox(vox_filepath, key):
     # Read in the VOX file
     vox_file = VoxFile(vox_filepath)
     vox_file.read()
     vox_file.close()
 
     # Convert the VOX file to a minecraft template
-    minecraft_template = convert_to_minecraft_blocks(vox_file)
+    minecraft_template = convert_to_minecraft_blocks(vox_file, key)
 
     # Save the template
     file_name = vox_filepath.split('/')[-1].split('.')[0] + '.json'
@@ -149,6 +175,8 @@ def create_template_from_vox(vox_filepath):
 filepath1 = 'MarkovJunior/resources/rules/ModernHouseMOD2/ModernHouseMOD1_73618823.vox'
 filepath2 = 'sections/MarkovJunior/output/EthanTree_1136010046.vox'
 filepath3 = 'MarkovJunior/resources/Apartemazements_722238551.vox'
-template_path = create_template_from_vox(filepath3)
-location = [0, 0, 200]
+filepath4 = 'MarkovJunior/resources/SavedVoxels/AnotherCity.vox'
+template_path = create_template_from_vox(filepath4, 'apartemazements')
+# template_path = create_template_from_vox(filepath1, 'modern_house')
+location = [30, 100, 30]
 visualize_vox_template(template_path, location)

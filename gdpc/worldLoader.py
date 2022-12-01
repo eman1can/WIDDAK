@@ -393,7 +393,7 @@ class WorldSlice:
 
         return biome_index
 
-    def get_biomes_in_chunk(self, p: ivec3) -> list[int]:
+    def get_biomes_in_chunk(self, p: ivec3): # -> list[int]:
         """**Return a list of biomes in the same chunk**."""
 
         cp, rp = self._relative(p)
