@@ -53,14 +53,14 @@ def place_block(block: Block, point: ivec3 = ivec3(), updates=True, flags=None):
     return put(url, block.full_blockstate).text.strip()
 
 
-def place_block_at(block: Block, origin: ivec3, points: list[ivec3], updates=True, flags=None):
+def place_block_at(block: Block, origin: ivec3, points, updates=True, flags=None):
     body = '\n'.join(['~{} ~{} ~{} {}'.format(p.x, p.y, p.z, block.full_blockstate) for p in points])
     queryParam = f"customFlags={flags}" if flags is not None else f"doBlockUpdates={updates}"
     url = f'http://localhost:9000/blocks?x={origin.x}&y={origin.y}&z={origin.z}&{queryParam}'
     return put(url, body).text.strip()
 
 
-def place_blocks(blocks: list[tuple[Block, ivec3]], origin: ivec3, updates=True, flags=None):
+def place_blocks(blocks, origin: ivec3, updates=True, flags=None):
     body = '\n'.join(['~{} ~{} ~{} {}'.format(p.x, p.y, p.z, block.full_blockstate) for block, p in blocks])
     queryParam = f"customFlags={flags}" if flags is not None else f"doBlockUpdates={updates}"
     url = f'http://localhost:9000/blocks?x={origin.x}&y={origin.y}&z={origin.z}&{queryParam}'
