@@ -3,6 +3,7 @@ import subprocess
 from subprocess import Popen, PIPE
 import shutil
 from time import perf_counter
+from examples import visualize_vox as vv
 
 
 
@@ -102,10 +103,19 @@ def run_multiple_markov(num: int):
     # Send to minecraft
 
 
+def run_to_minecraft():
+    run_multiple_markov(1)
 
+    filepath5 = 'MarkovJunior/multiple_outputs/ModernHouseOutput0.vox'
+
+    vv.clear_build_area()
+    template = vv.create_template_from_vox(filepath5, 'Modern House',
+                                        'modern_house', 'jungle')
+    location = [70, 130, 70]
+    vv.visualize_vox_template(template, location)
 
 
 if __name__ == "__main__":
-    run_multiple_markov(4)
-
+    # run_multiple_markov(4)
+    run_to_minecraft()
 

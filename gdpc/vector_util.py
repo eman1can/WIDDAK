@@ -455,24 +455,11 @@ class Rect:
         xl, yl = self.size
         return Rect.from_rect(x1 + other, y1 + other, xl + other, yl + other)
 
-    def __iter__(self):
-        self._ix, self._iz = self.offset
-        return self
-
-    def __next__(self):
-        if self._ix == self.end.x - 1 and self._iz == self.end.y:
-            raise StopIteration()
-        if self._iz == self.end.y:
-            self._iz = self.offset.y
-            self._ix += 1
-        res = self._ix, self._iz
-        self._iz += 1
-        return res
-
     def loop(self, step: ivec2 = ivec2(1, 1)):
         """ Loop through this 2D region"""
         norm = self.normalize()
-        return product(range(norm.x1, norm.x2, step.x), range(norm.z1, norm.z2, step.y))
+        for x, z in product(range(norm.x1, norm.x2, step.x), range(norm.z1, norm.z2, step.y)):
+            yield ivec2(x, z)
 
     def __repr__(self):
         return f"Rect(offset={vecString(self.begin)}, size={vecString(self.end)})"
@@ -698,33 +685,17 @@ class Box: # TODO: Add x1, y1, z1, x2, y2, z2, xl, yl, zl, add, div, mul, and tu
             return True
         return False
 
-    def __iter__(self):
-        self._ix, self._iy, self._iz = self.offset
-        return self
-
-    def __next__(self):
-        if self._ix == self.end.x - 1 and self._iy == self.end.y - 1 and self._iz == self.end.z:
-            raise StopIteration()
-        if self._iz == self.end.z:
-            self._iz = self.offset.z
-            self._iy += 1
-            if self._iy == self.end.y:
-                self._iy = self.offset.y
-                self._ix += 1
-        res = self._ix, self._iy, self._iz
-        self._iz += 1
-        return res
-
     def loop(self, step: ivec3 = ivec3(1, 1, 1)):
-        norm = self.normalize()
-        return product(range(norm.x1, norm.x2, step.x), range(norm.y1, norm.y2, step.y), range(norm.z1, norm.z2, step.z))
+        # norm = self.normalize()
+        for x, y, z in product(range(self.x1, self.x2, step.x), range(self.y1, self.y2, step.y), range(self.z1, self.z2, step.z)):
+            yield ivec3(x, y, z)
 
     def toRect(self):
         """ Returns this Box's XZ-plane as a Rect """
         return Rect(dropY(self.offset), dropY(self.size))
 
     def __repr__(self):
-        return f"Box(offset={vecString(self.begin)}, size={vecString(self.end)})"
+        return f"Box(offset={vecString(self.offset)}, size={vecString(self.size)})"
 
 
 def rectBetween(cornerA: ivec2, cornerB: ivec2):
