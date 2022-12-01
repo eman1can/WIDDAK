@@ -1,8 +1,28 @@
-<sequence values="BWN" symmetry="(xy)">
+<sequence values="BWNYU" symmetry="(xy)">
+
+<!--  Color stuffs.... -->
+<!--  Right now, D are fences, R are glass windows, Y are glowstones-->
 
   <prl in="B" out="W"/>
   <prl in="***/***/*** ***/*W*/*** ***/***/***" out="***/***/*** ***/*B*/*** ***/***/***"/>
   <prl in="B W" out="B N"/>
+
+  <one in="WW/WB WW/WN" out="WW/WY **/**" />
+
+  <one>
+    <rule in="BBBB Y***" out="BYYY ****" />
+    <rule in="BBBBB Y****" out="BYYYY *****" />
+    <rule in="BBB Y**" out="BYY ***" />
+  </one>
+
+  <one in="W B" out="W Y" />
+
+  <one in="Y B" out="Y U" />
+  <one in="U B" out="U U" />
+
+  <one in="B" out="W" />
+  <one in="Y" out="W" />
+  <one in="U" out="B" />
   <wfc values="BYDAWP RFUENC" tileset="PathsTiny">
 
 
@@ -14,8 +34,8 @@
     <prl in="C C" out="E N" comment="draw grass"/>
     <prl in="C" out="N"/>
 
-<!--    Turn 25% of the yellow lights blue   -->
-    <prl in="Y" out="C" p="0.25" steps="1"/>
+<!--    Turn some of the yellow lights blue  (they will all be yellow later  -->
+    <prl in="Y" out="C" p="0.15" steps="1"/>
     <prl in="Y" out="B"/>
 
     <all comment="draw columns">
@@ -55,6 +75,9 @@
     </prl>
     <prl in="AAAAA ARRRA ARRRA ARRRA ARRRA AAAAA" out="AAAAA AAAAA AAAAA AAAAA AAAAA AAAAA"/>
 
+    <!--    Make some windows smaller -->
+    <one in="AAA ARA ARA AAA" out="*** *** *A* ***" />
+
 <!--    Draw down walls to the ground-->
     <all>
       <rule in="A B" out="A Y" />
@@ -69,9 +92,27 @@
     <one in="F" out="A" />
     <one in="Y" out="B" />
 
+
+    <all>
+      <rule in="WAAW/WWWW" out="WWWW/****" />
+    </all>
+
+<!--    Add railings to edges  -->
+  <all>
+    <rule in="BB AB *B" out="D* ** **" />
+  </all>
+  <prl in="DB/BD **/A*" out="**/DD **/**"/>
+
+
+<!--    Change lights from blue to yellow    -->
+    <one in="C" out="Y" />
+
+<!--    Add lights onto some of the corners of railings     -->
+    <prl in="BB/BB DD/BD" out="BY/BB **/**" p="0.30" steps="1"/>
+
+<!--    Change some windows to lights-->
+<prl in="AAA ARA AAA" out="*** *Y* ***" p="0.20" steps="1"/>
+
+
   </wfc>
 </sequence>
-
-<!--
-Some rendered outputs: https://github.com/mxgmn/Blog/blob/master/Apartemazements.md
--->

@@ -3,11 +3,35 @@
     <tile name="Empty" weight="2.0"/>
     <tile name="Line"/>
     <tile name="Turn"/>
-    <tile name="X" weight="0.1"/>
-    <tile name="Down" weight="4.0"/>
-    <tile name="Up" weight="4.0"/>
+    <tile name="X" weight="0.3"/>
+    <tile name="Down" weight=".1"/>
+    <tile name="Up" weight=".1"/>
+<!--    <tile name="Square" />-->
+
+<!--    FOR LESS STAIRS CHANGE THESE WEIGHTs....-->
+<!--    X weight=.5 Down weight=.1 Up weight=.1     -->
+<!--    ORIGINAL WEIGHTS X=.1, Down=4, Up=4 -->
   </tiles>
   <neighbors>
+<!--    <neighbor left="Line" right="Square"/>-->
+<!--    <neighbor left="Turn" right="Square"/>-->
+<!--    <neighbor left="Square" right="Square"/>-->
+<!--    <neighbor left="Square" right="Down"/>-->
+<!--    <neighbor left="Square" right="Up"/>-->
+<!--    <neighbor top="Empty" bottom="Square"/>-->
+<!--    <neighbor top="Line" bottom="Square"/>-->
+<!--    <neighbor top="Turn" bottom="Square"/>-->
+<!--    <neighbor top="Square" bottom="Empty"/>-->
+<!--    <neighbor top="Square" bottom="Line"/>-->
+<!--    <neighbor top="Square" bottom="Turn"/>-->
+<!--    <neighbor top="Square" bottom="Square"/>-->
+<!--    <neighbor top="Square" bottom="Down"/>-->
+<!--    <neighbor top="Up" bottom="Square"/>-->
+<!--    <neighbor left="Square" right="X"/>-->
+<!--    <neighbor top="Square" bottom="X"/>-->
+<!--    <neighbor top="X" bottom="Square"/>-->
+
+
     <neighbor left="Empty" right="Empty"/>
     <neighbor left="Empty" right="z Line"/>
     <neighbor left="Empty" right="Turn"/>
@@ -52,6 +76,17 @@
     <neighbor left="zz Up" right="Down"/>
     <neighbor left="Up" right="zz Down"/>
     ~ <neighbor left="Up" right="z Down"/>
+
+        <neighbor top="Empty" bottom="X"/>
+    <neighbor top="Line" bottom="X"/>
+    <neighbor top="Turn" bottom="X"/>
+    <neighbor top="X" bottom="Empty"/>
+    <neighbor top="X" bottom="Line"/>
+    <neighbor top="X" bottom="Turn"/>
+    <neighbor top="X" bottom="X"/>
+    <neighbor top="X" bottom="Down"/>
+        <neighbor top="Up" bottom="X"/>
+
 
     <neighbor top="Empty" bottom="Empty"/>
     <neighbor top="Empty" bottom="Line"/>
