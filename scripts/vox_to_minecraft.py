@@ -30,6 +30,9 @@ def visualize_vox_template(template, location=None):
     buildArea = getBuildArea()
     buildRect = buildArea.toRect()
 
+    if location == None:
+        location = ivec3(buildArea.x1, buildArea.y1, buildArea.z1)
+
     # Check whether the build area is large enough
     if any(buildRect.size < CLEAR_AREA):
         eprint(f"The build area rectangle is too small! Its size needs to be at least {vecString(CLEAR_AREA)}")
@@ -46,9 +49,10 @@ def visualize_vox_template(template, location=None):
     for ix, iy, iz, relation, block in template.loop():
         blocks.append((block, ivec3(ix, iy, iz)))
         if len(blocks) > 100:
-            place_blocks(blocks, ivec3(buildArea.x1, buildArea.y1, buildArea.z1))
+            # place_blocks(blocks, ivec3(buildArea.x1, buildArea.y1, buildArea.z1))
+            place_blocks(blocks, center)
             blocks = []
-    place_blocks(blocks, ivec3(buildArea.x1, buildArea.y1, buildArea.z1))
+    place_blocks(blocks, center)
 
 def create_template_from_vox(vox_filepath, name, key, biome='forest'):
     # Read in the VOX file

@@ -102,19 +102,89 @@ def run_multiple_markov(num: int):
 
     os.chdir(s_cwd)
 
+def run_markov_aparttiny():
+
+    # folder_name = "models"
+    model_name = "models.xml"
+
+    # Get current working directory
+    s_cwd = os.getcwd()
+
+    # Enter the MarkovJunior directory
+    os.chdir("sections/MarkovJunior")
+
+    # # Create the multiple_outputs folder if it doesn't exist
+    # if not os.path.exists("multiple_outputs"):
+    #     os.makedirs("multiple_outputs")
+    #
+    # # Clear files in multiple_outputs
+    # os.chdir("multiple_outputs")
+    # fns = os.listdir()
+    # for fn in fns:
+    #     os.remove(fn)
+    # os.chdir("..")
+
+    # Start Timer
+    t1_start = perf_counter()
+
+    # for i in range(num):
+    #
+    #     success = False
+    #
+    #     while not success:
+    #         # Note - if this keeps running, you may have a typo in your .xml file of the rules
+
+
+    # Run the executable
+    print("MarkovJunior start runnning.")
+    p1 = subprocess.Popen(["MarkovJunior.exe", model_name])
+    # Popen()
+    # p.communicate(bytes("models.xml", "utf-8"))
+    p1.wait()
+    print("MarkovJunior end runnning.")
+
+    # Check if successful change by seeing if ModernHouseT1 was able to run
+    # os.chdir("output")
+    # fns = os.listdir()
+    # if len(fns) > 0:
+    #     success = True
+    # os.chdir("..")
+    #     # End of success loop checker.
+
+    # # Copy to multiple outputs
+    # m_folder = "multiple_outputs"
+    os.chdir("output")
+    fns = os.listdir()
+    vox_fn = fns[0]
+    shutil.copy2(vox_fn, "ApartemazementsTiny0.vox")
+
+    # Reset directory to MarkovJunior folder
+    os.chdir("..")
+    # End of number-of-buildings loop
+    t1_stop = perf_counter()
+    print("Elapsed time for 1 outputs: " + str(t1_stop-t1_start))
+
+    os.chdir(s_cwd)
+
 def run_to_minecraft():
     run_multiple_markov(1)
 
-    filepath5 = 'sections/MarkovJunior/output/ModernHouse.vox'
-    filepath6 = 'sections/MarkovJunior/resources/SavedVoxels/ApartemazementsTiny_1481160288.vox'
+    run_markov_aparttiny()
+
+    filepath5 = 'sections/MarkovJunior/multiple_outputs/ModernHouseOutput0.vox'
+    # filepath6 = 'sections/MarkovJunior/resources/SavedVoxels/ApartemazementsTiny_1481160288.vox'
+    filepath6 = 'sections/MarkovJunior/output/ApartemazementsTiny0.vox'
+
 
     # vm.clear_build_area()
-    # template = vm.create_template_from_vox(filepath5, 'Modern House',
-    #                                     'modern_house', 'jungle')
-    template = vm.create_template_from_vox(filepath6, 'Adobe Village',
+    template1 = vm.create_template_from_vox(filepath5, 'Modern House',
+                                        'modern_house', 'jungle')
+    template2 = vm.create_template_from_vox(filepath6, 'Adobe Village',
                                         'apartemazements', 'forest')
-    location = [70, 130, 70]
-    vm.visualize_vox_template(template, location)
+    location1 = [39, 163, 444]
+    location2 = [39, 163, 385]
+    vm.visualize_vox_template(template1, location1)
+    vm.visualize_vox_template(template2, location2)
 
 
 if __name__ == "__main__":
