@@ -39,6 +39,13 @@ This is where common code, like vox load / save, and rendering live - Do not put
 This is where code for the individual sections of the project live, each section tackling a different part of AI generation.
 1. #### MarkovJunior/
     Utilizing the C# MarkovJunior programming language to load and programmatically modify building templates in a novel way
+
+   1. Follow these linked instructions in the "Getting Started" section for setting up your computer to use the GDMC https client server for editing minecraft worlds with python. https://gendesignmc.wikidot.com/wiki:submission-httpserver
+   2. Open the forge mod version of minecraft that you setup in the first step. 
+   3. Create a new minecraft world. Set mode to Creative. A Flat world will be easier to see the generation, but it works in any minecraft terrain. 
+   4. Use command `/setbuildarea x0 y0 z0 x1 y1 z1`to set the build area to be cleared for python generation. In a minecraft world, X and Z are horizontal, Y is vertical. Here is an example value: `/setbuildarea 39 163 385 90 184 436`
+   5. Open MJ_run_to_render.py and run the definition run_to_minecraft()
+
 2. #### Wave Function Collapse/
     A custom wave function collapse algorithm for parceling town centers from environment data and town patterns
 3. #### SMCA/ "Slime Mold Cellular Automata"
