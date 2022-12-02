@@ -37,21 +37,20 @@ This contains all code directly pertaining towards interacting with minecraft
 This is where common code, like vox load / save, and rendering live - Do not put running code here!
 ### sections/
 This is where code for the individual sections of the project live, each section tackling a different part of AI generation.
-#### MarkovJunior/
-Utilizing the C# MarkovJunior programming language to load and programmatically modify building templates in a novel way
-#### Wave Function Collapse/
-A custom wave function collapse algorithm for parceling town centers from environment data and town patterns
-#### SMCA/ "Slime Mold Cellular Automata"
-Building roads and calculating city centers based off of environmental data utilizing cellular automata
-#### Environmental Detection/
-Getting environmental data from gdpc and formatting it in a way that is understood by the rest of our code. Also includes things such as resource location, hazard detection, existing structure integration, and more.
-#### Blueprints/
-Getting blueprint data from third-party sources or hand-build templates for feeding into our markov junior algorithm
+1. #### MarkovJunior/
+    Utilizing the C# MarkovJunior programming language to load and programmatically modify building templates in a novel way
+2. #### Wave Function Collapse/
+    A custom wave function collapse algorithm for parceling town centers from environment data and town patterns
+3. #### SMCA/ "Slime Mold Cellular Automata"
+    Building roads and calculating city centers based off of environmental data utilizing cellular automata
+4. #### Environmental Detection/
+    Getting environmental data from gdpc and formatting it in a way that is understood by the rest of our code. Also includes things such as resource location, hazard detection, existing structure integration, and more.
+5. #### Blueprints/
+    Getting blueprint data from third-party sources or hand-build templates for feeding into our markov junior algorithm.  
+    - Sources: [the minecraft wiki blueprints page](https://minecraft.fandom.com/wiki/Village/Structure/Blueprints)
+6. #### Voxel Renderer/
+    A custom from scratch OpenGL 4.0 voxel renderer streamlined for minecraft texture display for viewing buildings and world slices
 
-Sources:
-* [the minecraft wiki blueprints page](https://minecraft.fandom.com/wiki/Village/Structure/Blueprints)
-#### Voxel Renderer/
-A custom from scratch OpenGL 4.0 voxel renderer streamlined for minecraft texture display for viewing buildings and world slices
 ### scripts/
 This is where tool scripts, such as run markov to render, or sym link live
 ### examples/
