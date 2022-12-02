@@ -1,17 +1,6 @@
-# Path Fixing Code - Must Be First
-from os import getcwd, environ, chdir, listdir, makedirs
-from os.path import split, join, exists
-
-script_path = getcwd()
-while not script_path.endswith('WIDDAK'):
-    script_path = split(script_path)[0]
-    chdir(script_path)
-if 'PYTHONPATH' in environ:
-    if script_path + ';' not in environ['PYTHONPATH']:
-        environ['PYTHONPATH'] += script_path + ';'
-else:
-    environ['PYTHONPATH'] = script_path
-# End Path Fixing Code
+from fix_file_path import *
+from os import listdir, makedirs
+from os.path import join, exists
 
 from gdpc.renderer import Renderer
 from src.vox import VoxFile

@@ -1,26 +1,9 @@
+from fix_file_path import *
 import os
 import subprocess
 from subprocess import Popen, PIPE
 import shutil
 from time import perf_counter
-
-# Path Fixing Code - Must Be First
-import sys
-from os import getcwd, environ, chdir
-from os.path import split
-
-script_path = getcwd()
-sys.path.append(script_path)
-while not script_path.endswith('WIDDAK'):
-    script_path = split(script_path)[0]
-    chdir(script_path)
-if 'PYTHONPATH' in environ:
-    if script_path + ';' not in environ['PYTHONPATH']:
-        environ['PYTHONPATH'] += script_path + ';'
-else:
-    environ['PYTHONPATH'] = script_path
-# End Path Fixing Code
-
 import vox_to_minecraft as vm
 
 def run_markov():
@@ -28,7 +11,7 @@ def run_markov():
     s_cwd = os.getcwd()
 
     # Enter the MarkovJunior directory
-    os.chdir("MarkovJunior")
+    os.chdir("sections/MarkovJunior")
 
     # Run the executable
     print("MarkovJunior start runnning.")
@@ -49,7 +32,11 @@ def run_multiple_markov(num: int):
     s_cwd = os.getcwd()
 
     # Enter the MarkovJunior directory
-    os.chdir("MarkovJunior")
+    os.chdir("sections/MarkovJunior")
+
+    # Create the multiple_outputs folder if it doesn't exist
+    if not os.path.exists("multiple_outputs"):
+        os.makedirs("multiple_outputs")
 
     # Clear files in multiple_outputs
     os.chdir("multiple_outputs")
@@ -116,10 +103,10 @@ def run_multiple_markov(num: int):
     os.chdir(s_cwd)
 
 def run_to_minecraft():
-    # run_multiple_markov(1)
+    run_multiple_markov(1)
 
-    filepath5 = 'MarkovJunior/output/ModernHouse.vox'
-    filepath6 = 'MarkovJunior/resources/SavedVoxels/ApartemazementsTiny_1481160288.vox'
+    filepath5 = 'sections/MarkovJunior/output/ModernHouse.vox'
+    filepath6 = 'sections/MarkovJunior/resources/SavedVoxels/ApartemazementsTiny_1481160288.vox'
 
     # vm.clear_build_area()
     # template = vm.create_template_from_vox(filepath5, 'Modern House',
