@@ -2192,14 +2192,14 @@ BIOMES = {
 }
 
 BIOME_COLORS = {  # TODO: Assign Biome Colors
-    0:   0x4040FF,
-    1:   0x9BBC6D,
-    2:   0xF7E9A3,
-    3:   0x707070,  #
-    4:   0x5D8229,  # Dark Green
-    5:   0xFF00C7,
-    6:   0xFF00C7,
-    7:   0xFF00C7,
+    0:   0x4040FF,  # Ocean - Purple Blue
+    1:   0x9BBC6D,  # Plains - Light Green
+    2:   0xF7E9A3,  # Desert - Light Tan
+    3:   0x707070,  # Mountains - Medium Gray
+    4:   0x5D8229,  # Forest - Dark Green
+    5:   0xD3D3D3,  # Taiga - Silvery White
+    6:   0x4F7C54,  # Swamp - Swampy Green
+    7:   0x57ACD1,  # River - Light Blue
     8:   0xFF00C7,
     9:   0xFF00C7,
     10:  0xFF00C7,
@@ -2208,9 +2208,9 @@ BIOME_COLORS = {  # TODO: Assign Biome Colors
     13:  0xFF00C7,
     14:  0xFF00C7,
     15:  0xFF00C7,
-    16:  0xFF00C7,
-    17:  0xFF00C7,
-    18:  0xFF00C7,
+    16:  0xA7BA5E,  # Beach - Greenish Tan
+    17:  0x968533,  # Desert Hills - Dark Tan
+    18:  0x3F6861,  # Wooded Hills - Dark Gray Green
     19:  0xFF00C7,
     20:  0xFF00C7,
     21:  0xFF00C7,
@@ -2219,16 +2219,16 @@ BIOME_COLORS = {  # TODO: Assign Biome Colors
     24:  0xFF00C7,
     25:  0xFF00C7,
     26:  0xFF00C7,
-    27:  0xFF00C7,
-    28:  0xFF00C7,
+    27:  0x9ECE88,  # Birch Forest - Pale Green
+    28:  0x6E8E5F,  # Birch Forest Hills - Dark Pale Green
     29:  0xFF00C7,
     30:  0xFF00C7,
     31:  0xFF00C7,
     32:  0xFF00C7,
     33:  0xFF00C7,
-    34:  0xFF00C7,
-    35:  0xFF00C7,
-    36:  0xFF00C7,
+    34:  0x490000,  # Wooded Mountains - Dark Brown
+    35:  0xAF574D,  # Savanna - Rustic Orange
+    36:  0xD86B5F,  # Savanna Plateau - Light Rustic Orange
     37:  0xFF00C7,
     38:  0xFF00C7,
     39:  0xFF00C7,
@@ -2244,9 +2244,9 @@ BIOME_COLORS = {  # TODO: Assign Biome Colors
     49:  0xFF00C7,
     50:  0xFF00C7,
     127: 0xFF00C7,
-    129: 0xFF00C7,
-    130: 0xFF00C7,
-    131: 0xFF00C7,
+    129: 0xFFF200,  # Sunflower Plains - Vibrant Yellow
+    130: 0x46937A,  # Desert Lakes - Green Blue
+    131: 0x645A89,  # Gravelly Mountains - Purple Silver
     132: 0xFF00C7,
     133: 0xFF00C7,
     134: 0xFF00C7,
@@ -2259,9 +2259,9 @@ BIOME_COLORS = {  # TODO: Assign Biome Colors
     158: 0xFF00C7,
     160: 0xFF00C7,
     161: 0xFF00C7,
-    162: 0xFF00C7,
-    163: 0xFF00C7,
-    164: 0xFF00C7,
+    162: 0x2F2E33,  # Modified Gravelly Mountains - Dark Grey
+    163: 0x913E78,  # Shattered Savannah - Pinkish Red
+    164: 0xBC519C,  # Shattered Savannah Plateau - Light Pinkish Red
     165: 0xFF00C7,
     166: 0xFF00C7,
     167: 0xFF00C7,

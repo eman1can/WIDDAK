@@ -1,7 +1,10 @@
 # Path Fixing Code - Must Be First
-from os import getcwd, environ, chdir, listdir
-from os.path import split, join
+from os import getcwd, environ, chdir, listdir, makedirs
+from os.path import exists, isdir, islink, split, join
+from shutil import copy, copytree
 
+# Start Path Fixing Code
+# Ensure that no local imports are before this!
 script_path = getcwd()
 while not script_path.endswith('WIDDAK'):
     script_path = split(script_path)[0]
@@ -13,22 +16,68 @@ else:
     environ['PYTHONPATH'] = script_path
 # End Path Fixing Code
 
-from gdpc.interface import getWorldSlice
-from gdpc.vector_util import Rect
+from gdpc.common import get_minecraft_location
 
-save_area = Rect.from_corners(0, 0, 4096, 4096)
+if not exists(join('local', 'worlds')):
+    makedirs(join('local', 'worlds'))
 
-# The default step is 512
-step = 512
+save_location = join(get_minecraft_location(), 'saves')
 
-world_path = join('local', 'worlds')
-last = listdir(world_path)[-1]
-if last.endswith('dat'):
-    count = int(last[-8:-4])
-else:
-    count = int(last[-4:])
-world_name = f'TestWorld{count + 1}'
-save_world_name = 'New World (2)'
+worlds_to_save = []
+for world in listdir(save_location):
+    if islink(save_location):
+        continue
+    worlds_to_save.append(world)
 
-world_slice = getWorldSlice(save_area, save_data=True)
-world_slice.to_file(world_name, save_world_name, world_path, step)
+if len(worlds_to_save) == 0:
+    print('You have no minecraft worlds! Please make one. :(')
+    exit(1)
+
+print('Select a world to save')
+for ix, world in enumerate(worlds_to_save):
+    print(f'\t{ix:2}. {world}')
+
+chosen_world = input('\t>> ')
+
+if not chosen_world.isdigit() and chosen_world not in worlds_to_save:
+    print(f'{chosen_world} is not a valid input!')
+    chosen_world = input('\t>> ')
+
+if chosen_world.isdigit():
+    chosen_world = worlds_to_save[int(chosen_world)]
+
+print('Enter a name to save as:')
+chosen_name = input('\t>> ')
+
+while exists(join('local', 'worlds', chosen_name)):
+    print('There is already a world with that name!')
+    chosen_name = input('\t>> ')
+
+print(f'Saving {chosen_world} to local/worlds/{chosen_name}')
+
+raw_folder = join('local', 'worlds', chosen_name, 'raw')
+edit_folder = join('local', 'worlds', chosen_name, 'edit')
+
+if not exists(raw_folder):
+    makedirs(raw_folder)
+if not exists(edit_folder):
+    makedirs(edit_folder)
+
+
+def copy_file(src, dst):
+    if isdir(src):
+        copytree(src, dst)
+    else:
+        copy(src, dst)
+
+
+print('Copying Minecraft World...', end='')
+for file in listdir(join(save_location, chosen_world)):
+    if file == 'session.lock':
+        continue
+    src = join(save_location, chosen_world, file)
+    raw_dst = join(raw_folder, file)
+    edit_dst = join(edit_folder, file)
+    copy_file(src, raw_dst)
+    copy_file(src, edit_dst)
+print('Done')

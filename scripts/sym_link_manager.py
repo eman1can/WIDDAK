@@ -1,5 +1,18 @@
-from os import listdir
-from os.path import exists, isdir, join
+from os import chdir, environ, getcwd, listdir
+from os.path import exists, isdir, join, split
+
+# Start Path Fixing Code
+# Ensure that no local imports are before this!
+script_path = getcwd()
+while not script_path.endswith('WIDDAK'):
+    script_path = split(script_path)[0]
+    chdir(script_path)
+if 'PYTHONPATH' in environ:
+    if script_path + ';' not in environ['PYTHONPATH']:
+        environ['PYTHONPATH'] += script_path + ';'
+else:
+    environ['PYTHONPATH'] = script_path
+# End Path Fixing Code
 
 from scripts.sym_link_base import SymLinkManager
 
@@ -18,10 +31,10 @@ base = SymLinkManager()
 
 
 def get_worlds(add):
-    world_files = listdir('worlds')
+    world_files = listdir(join('local', 'worlds'))
     worlds = []
     for file in world_files:
-        world_path = join('worlds', file, 'raw')
+        world_path = join('local', 'worlds', file, 'raw')
         if not exists(world_path) or not isdir(world_path):
             continue
         if add and base.is_link(world_path):

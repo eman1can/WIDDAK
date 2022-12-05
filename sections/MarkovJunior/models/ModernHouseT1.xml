@@ -1,0 +1,70 @@
+<sequence values="BWNMmTyKYRALkFGCcXwJoHfaZEhldUOg" symmetry="(xy)"
+          folder="modelsT1_2">
+
+
+    <one fin="EmptyModernHouse" inlegend=""
+         fout="ModernHouseOutput" outlegend=""/>
+    <all in="Z" out="B"/>
+
+    <sequence symmetry="(xy)">
+        <sequence>
+            First, add parapet greenery
+            <all>
+                <rule fin="parapet2" inlegend="" fout="parapet2-new1"
+                      outlegend="" p="1.0"/>
+                <rule fin="parapet2" inlegend="" fout="parapet2-new2"
+                      outlegend="" p="1.0"/>
+                <rule fin="parapet2" inlegend="" fout="parapet2-new3"
+                      outlegend="" p="1.0"/>
+                <!--		<rule fin = "parapet1" inlegend = "" fout = "parapet1" outlegend="" p="0.5" />-->
+            </all>
+        </sequence>
+
+
+        <!--	Add balcony decorations-->
+        <all>
+            <rule fin="balcony1" inlegend="" fout="balcony1-bush" outlegend=""
+                  p="0.75"/>
+            <rule fin="balcony1" inlegend="" fout="balcony1-pot1" outlegend=""
+                  p="0.5"/>
+            <rule fin="balcony1" inlegend="" fout="balcony1" outlegend=""
+                  p="0.5"/>
+            <rule fin="balcony1" inlegend="" fout="balcony1-anvil" outlegend=""
+                  p="0.05"/>
+        </all>
+
+        <all>
+            <rule fin="trellis1" inlegend="" fout="trellis1-vinesW1"
+                  outlegend=""
+                  p="1.0"/>
+            <rule fin="trellis1" inlegend="" fout="trellis1" outlegend=""
+                  p="1.0"/>
+        </all>
+
+
+    </sequence>
+
+    <sequence symmetry="()">
+        <all>
+            <rule fin="patio2" inlegend="" fout="patio2-table1" outlegend=""
+                  p="1.0"/>
+        </all>
+
+        <all>
+            <rule fin="patio3" inlegend="" fout="patio3-table1" outlegend=""
+                  p="1.0"/>
+        </all>
+
+    </sequence>
+
+
+    <!--	<all>-->
+    <!--		<rule fin = "roofCorner1" inlegend = "" fout = "roofCorner1-mod1" outlegend="" p="1.0" />-->
+    <!--	</all>-->
+
+    <!--	<all>-->
+    <!--		<rule fin = "red-roof1" inlegend = "" fout = "red-red1" outlegend="" p="1.0" />-->
+    <!--	</all>-->
+
+
+</sequence>

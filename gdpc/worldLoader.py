@@ -7,12 +7,11 @@ This module contains functions to:
 __all__ = ['WorldSlice']
 __version__ = "v5.1"
 
-import sys
+from amulet.api.block import Block, StringTag
 from io import BytesIO
-from os import listdir, makedirs, mkdir
-from os.path import exists, isdir, join, split
-from shutil import copy, copytree
+from os.path import join, split
 from time import time
+from typing import Optional
 
 import numpy as np
 from glm import ivec2, ivec3
@@ -20,7 +19,6 @@ from numpy import ceil, log2
 
 from . import direct_interface as di
 from .bitarray import BitConverter
-from .common import get_minecraft_location
 from .vector_util import Rect
 from .lookup import VERSIONS, SUPPORTS, TCOLORS
 from .nbt import NBTFile
@@ -75,12 +73,12 @@ class WorldData:
     def load_from_file(file_name, rect):
         if not file_name.endswith('chunk'):
             raise TypeError('Invalid File. Must be a CHUNK file')
-        with open(file_name, 'rb') as file:  # TODO: Change to GzipFile Using NBTFile
-            header_bytes = file.read(3)
-            if header_bytes != b'\x0A\x00\x04':
-                raise TypeError('This is not a CHUNK file!')
-            byte_data = header_bytes + file.read()
-        nbt_data = NBTFile(buffer=BytesIO(byte_data))
+        # with open(file_name, 'rb') as file:  # TODO: Change to GzipFile Using NBTFile
+        #     header_bytes = file.read(3)
+        #     if header_bytes != b'\x1F\x8B\x08':
+        #         raise TypeError('This is not a CHUNK file!')
+        #     byte_data = header_bytes + file.read()
+        nbt_data = NBTFile(filename=file_name)
         return WorldData(rect, nbt_data)
 
     @staticmethod
@@ -97,15 +95,15 @@ class WorldSlice:
     """**Contains information on a slice of the world**."""
     def __init__(self):
         self.heightmap_types = DEFAULT_HEIGHTMAP_TYPES
-        self.rect = Rect.from_rect(0, 0, 0, 0)
-        self.chunk_rect = Rect.from_rect(0, 0, 0, 0)
-        self.world_name = None
-        self.step = None
+        self.rect: Rect = Rect.from_rect(0, 0, 0, 0)
+        self.chunk_rect: Rect = Rect.from_rect(0, 0, 0, 0)
+        self.world_name: Optional[str] = None
+        self.step: Optional[int] = None
 
         self.chunks = None
         self.chunk_palettes = None
         self.biomes = None
-        self.heightmaps = None
+        self.heightmaps: Optional[np.ndarray] = None
         self.data_version = None
 
         self.saved_data = None
@@ -152,7 +150,7 @@ class WorldSlice:
 
         print(f'Loading Slice Chunks (0 / {chunk_count})...')
         start_time = time()
-        if step == saved_rect.xl and step == saved_rect.zl:
+        if step == saved_rect.dx and step == saved_rect.dz:
             # The world slice is from one chunk
             world_data = WorldData.load_from_file(join(path, world_name, 'saved', f'{saved_rect.x1}_{saved_rect.z1}_{step}.chunk'), rect)
             print(f'Done')
@@ -165,7 +163,7 @@ class WorldSlice:
                 if ix > 0:
                     print('\b' * 48, end='')
                 print(f'{ix + 1:10} / {chunk_count:10} {round((ix + 1) / chunk_count, 2):10}% - {round(time() - start_time, 2):10}', end='')
-            print(f'Done - {time() - start_time}')
+            print(f'\nDone - {time() - start_time}')
             subset = full_world_data.get_sub_section(chunk_rect)
         ret.load(subset, rect)
         return ret
@@ -177,9 +175,8 @@ class WorldSlice:
         """
         ret = WorldSlice()
 
-        step = min(step, rect.dx // 2, rect.dz // 2)
-
         chunk_rect = rect // 16
+        step = min(step, chunk_rect.dx // 2, chunk_rect.dz // 2)
         chunk_count = int(ceil(chunk_rect.area / (step * step)))
         start_time = time()
         print(f'Loading Slice Chunks (0 / {chunk_count})...')
@@ -197,65 +194,69 @@ class WorldSlice:
             ret.saved_data = full_world_data
         return ret
 
-    def to_file(self, world_name, minecraft_world_name, save_path, step):
-        save_location = join(get_minecraft_location(), 'saves')
+    # def to_file(self, world_name, minecraft_world_name, save_path, step):
+    #     save_location = join(get_minecraft_location(), 'saves')
+    #
+    #     if not exists(join(save_location, minecraft_world_name)):
+    #         print('That minecraft world does not exist!\nYou\'ll have to copy the world yourself', file=sys.stderr)
+    #     if self.saved_data is None:
+    #         raise ValueError('Please call from_server with save_data=True; This slice has no savable data')
+    #     if step % 16 != 0:
+    #         raise TypeError('Step should be divisible by 16!')
+    #
+    #     print('Saving World Slice')
+    #
+    #     world_folder = join(save_path, world_name)
+    #     dat_file = join(save_path, world_name + '.dat')
+    #     raw_folder = join(world_folder, 'raw')
+    #     chunk_folder = join(world_folder, 'saved')
+    #
+    #     if not exists(world_folder):
+    #         makedirs(world_folder)
+    #     if not exists(chunk_folder):
+    #         mkdir(chunk_folder)
+    #     if not exists(raw_folder):
+    #         mkdir(raw_folder)
+    #
+    #     if not exists(join(raw_folder, 'level.dat')):
+    #         if exists(join(save_location, minecraft_world_name)):
+    #             print('Copying Minecraft World...', end='')
+    #             for file in listdir(join(save_location, minecraft_world_name)):
+    #                 if file == 'session.lock':
+    #                     continue
+    #                 src = join(save_location, minecraft_world_name, file)
+    #                 dst = join(raw_folder, file)
+    #                 if isdir(src):
+    #                     copytree(src, dst)
+    #                 else:
+    #                     copy(src, dst)
+    #             print('Done')
+    #     print('Saving Slice Info...', end='')
+    #
+    #     rect = self.chunk_rect * 16
+    #     chunk_count = int(ceil(self.chunk_rect.area / (step * step)))
+    #     cs = step // 16
+    #
+    #     file_data = ','.join([world_name, str(step), str(rect.x1), str(rect.z1), str(rect.x2), str(rect.z2)])
+    #     with open(dat_file, 'a') as file:
+    #         file.write(file_data)
+    #     print('Done')
+    #
+    #     print(f'Saving Slice Chunks...')
+    #     start_time = time()
+    #     for ix, (cx, cz) in enumerate(self.chunk_rect.loop(ivec2(cs, cs))):
+    #         sub_data = self.saved_data.get_sub_section(Rect.from_rect(cx, cz, cs, cs))
+    #         sub_data.to_file(join(world_folder, 'saved', f'{cx}_{cz}_{step}.chunk'))
+    #         if ix > 0:
+    #             print('\b' * 45, end='')
+    #         print(f'{ix + 1:10} / {chunk_count:10} {round((ix + 1) / chunk_count * 100, 2):6}% - {round(time() - start_time, 2):10}s', end='')
+    #     print(f'\nDone - {time() - start_time}')
 
-        if not exists(join(save_location, minecraft_world_name)):
-            print('That minecraft world does not exist!\nYou\'ll have to copy the world yourself', file=sys.stderr)
-        if self.saved_data is None:
-            raise ValueError('Please call from_server with save_data=True; This slice has no savable data')
-        if step % 16 != 0:
-            raise TypeError('Step should be divisible by 16!')
+    def get_heightmap(self, heightmap_name: str) -> np.ndarray:
+        hix = self.heightmap_types.index(heightmap_name)
+        return self.heightmaps[hix]
 
-        print('Saving World Slice')
-
-        world_folder = join(save_path, world_name)
-        dat_file = join(save_path, world_name + '.dat')
-        raw_folder = join(world_folder, 'raw')
-        chunk_folder = join(world_folder, 'saved')
-
-        if not exists(world_folder):
-            makedirs(world_folder)
-        if not exists(chunk_folder):
-            mkdir(chunk_folder)
-        if not exists(raw_folder):
-            mkdir(raw_folder)
-
-        if not exists(join(raw_folder, 'level.dat')):
-            if exists(join(save_location, minecraft_world_name)):
-                print('Copying Minecraft World...', end='')
-                for file in listdir(join(save_location, minecraft_world_name)):
-                    if file == 'session.lock':
-                        continue
-                    src = join(save_location, minecraft_world_name, file)
-                    dst = join(raw_folder, file)
-                    if isdir(src):
-                        copytree(src, dst)
-                    else:
-                        copy(src, dst)
-                print('Done')
-        print('Saving Slice Info...', end='')
-
-        rect = self.chunk_rect * 16
-        chunk_count = int(ceil(self.chunk_rect.area / (step * step)))
-        cs = step // 16
-
-        file_data = ','.join([world_name, str(step), str(rect.x1), str(rect.z1), str(rect.x2), str(rect.z2)])
-        with open(dat_file, 'a') as file:
-            file.write(file_data)
-        print('Done')
-
-        print(f'Saving Slice Chunks...')
-        start_time = time()
-        for ix, (cx, cz) in enumerate(self.chunk_rect.loop(ivec2(cs, cs))):
-            sub_data = self.saved_data.get_sub_section(Rect.from_rect(cx, cz, cs, cs))
-            sub_data.to_file(join(world_folder, 'saved', f'{cx}_{cz}_{step}.chunk'))
-            if ix > 0:
-                print('\b' * 45, end='')
-            print(f'{ix + 1:10} / {chunk_count:10} {round((ix + 1) / chunk_count * 100, 2):6}% - {round(time() - start_time, 2):10}s', end='')
-        print(f'\nDone - {time() - start_time}')
-
-    def load(self, world_data, rect):
+    def load(self, world_data: WorldData, rect: Rect):
         """
         Load chunk data into local data arrays, unpacking compressed data
         https://wiki.vg/Chunk_Format
@@ -266,7 +267,7 @@ class WorldSlice:
 
         self.chunks = np.zeros((self.rect.dx, self.rect.dz, 256), dtype=np.uint16)
         self.biomes = np.zeros((int(ceil(self.rect.dx / 4)), int(ceil(self.rect.dz / 4)), 64), dtype=np.uint8)
-        self.chunk_palettes = [[[None for _ in range(16)] for _ in range(self.chunk_rect.dz)] for _ in range(self.chunk_rect.dx)]
+        self.chunk_palettes: list[list[list[Optional[list[Block]]]]] = [[[None for _ in range(16)] for _ in range(self.chunk_rect.dz)] for _ in range(self.chunk_rect.dx)]
 
         self.heightmap_types = list(world_data.nbt_data.chunks[0]['Level']['Heightmaps'].keys())
         self.data_version = world_data.nbt_data.chunks[0]['DataVersion'].value
@@ -274,7 +275,7 @@ class WorldSlice:
         self.heightmaps = np.zeros((len(self.heightmap_types), self.rect.dx, self.rect.dz), dtype=np.uint16)
         heightmap_converter = BitConverter(9, 256)
 
-        chunk_count = rect.area // (16 * 16)
+        chunk_count = int(ceil(rect.area / (16 * 16)))
         print(f'\nReading and Unpacking Chunk Data')
         start_time = time()
 
@@ -316,7 +317,15 @@ class WorldSlice:
                         if 'BlockStates' not in section or len(section['BlockStates']) == 0:
                             continue
                         if self.chunk_palettes[rcx][rcz][cy] is None:
-                            self.chunk_palettes[rcx][rcz][cy] = section['Palette'].tags
+                            blocks = []
+                            for block in section['Palette'].tags:
+                                namespace, name = str(block['Name']).split(':')
+                                properties = {}
+                                if 'Properties' in block:
+                                    for k, v in block['Properties'].items():
+                                        properties[k] = StringTag(v)
+                                blocks.append(Block(namespace, name, properties))
+                            self.chunk_palettes[rcx][rcz][cy] = blocks
                         bits_per_entry = int(max(4, ceil(log2(len(section['Palette'].tags)))))
                         converter = BitConverter(bits_per_entry, 4096)
                         # Get Block Data
@@ -339,41 +348,29 @@ class WorldSlice:
 
     def _relative(self, p: ivec3) -> ivec3:
         """ Return relative indices for accessing data """
-        p.x -= self.rect.x1
-        p.z -= self.rect.z1
-        return p
+        return ivec3(p.x - self.rect.x1, p.y, p.z - self.rect.z1)
 
-    def get_heightmap(self, heightmap_type: str):
-        """
-        Heightmaps are MOTION_BLOCKING, MOTION_BLOCKING_NO_LEAVES, OCEAN_FLOOR, WORLD_SURFACE
-        """
-        index = self.heightmap_types.index(heightmap_type)
-        return self.heightmaps[index]
-
-    def get_relative_block_data_at(self, rp: ivec3) -> dict:
+    def get_relative_block_data_at(self, rp: ivec3) -> Block:
         """ Return block data from relative coordinates"""
         # print(cx, cy, cz, x, y, z, len(self.chunk_palettes), len(self.chunk_palettes[0]))
         cp = self._floor_div_p(rp, 16)
         palette_index = self.chunks[rp.x, rp.z, rp.y]
         palette = self.chunk_palettes[cp.x][cp.z][cp.y]
         if palette is None:
-            return {'Name': 'minecraft:air'}
+            return Block('minecraft', 'air')
         if palette_index >= len(palette):
             print('IndexError', palette, palette_index)
-            return {'Name': 'minecraft:air'}
+            return Block('minecraft', 'air')
         return palette[palette_index]
 
-    def get_block_data_at(self, p: ivec3) -> dict:
+    def get_block_data_at(self, p: ivec3) -> Block:
         """ Return block data """
         return self.get_relative_block_data_at(self._relative(p))
 
     def get_relative_block_id_at(self, p: ivec3) -> str:
         """ Return the block's namespaced id at relative coordinates """
         block_data = self.get_relative_block_data_at(p)
-        name = block_data['Name']
-        if isinstance(name, str):
-            return name
-        return name.value
+        return block_data.namespaced_name
 
     def get_block_id_at(self, p: ivec3) -> str:
         """ Return the block's namespaced id at coordinates """
@@ -389,11 +386,11 @@ class WorldSlice:
     def get_relative_biome_at(self, rp: ivec3):
         bp = self._floor_div_p(rp, 4)
 
-        biome_index = self.biomes[bp.x, bp.z, bp.y]
+        biome_index = self.biomes[bp.z, bp.x, bp.y]
 
         return biome_index
 
-    def get_biomes_in_chunk(self, p: ivec3) -> list[int]:
+    def get_biomes_in_chunk(self, p: ivec3): # -> list[int]:
         """**Return a list of biomes in the same chunk**."""
 
         cp, rp = self._relative(p)

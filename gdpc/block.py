@@ -15,17 +15,13 @@ from .block_state_util import transformAxisString, transformFacingString
 @dataclass
 class Block:
     """ A Minecraft block.
-
         If self.name is a list, the instance represents a block palette.
-
         Block state can be stored in [otherState], and NBT data can be stored in [nbt] (excluding
         the outer braces).
-
         Some orientation-related block states need to be stored in explicitly named fields to ensure
         that the Block transforms correctly. These are:
         - axis
         - facing
-
         Other orientation-related block states are currently not supported by the transformation
         system. """
 
@@ -123,4 +119,4 @@ class Block:
 
         block.transform(rotation, flip)
 
-        return block
+        return 

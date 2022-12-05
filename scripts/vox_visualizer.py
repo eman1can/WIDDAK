@@ -1,17 +1,6 @@
-# Path Fixing Code - Must Be First
-from os import getcwd, environ, chdir, listdir, makedirs
-from os.path import split, join, exists
-
-script_path = getcwd()
-while not script_path.endswith('WIDDAK'):
-    script_path = split(script_path)[0]
-    chdir(script_path)
-if 'PYTHONPATH' in environ:
-    if script_path + ';' not in environ['PYTHONPATH']:
-        environ['PYTHONPATH'] += script_path + ';'
-else:
-    environ['PYTHONPATH'] = script_path
-# End Path Fixing Code
+from fix_file_path import *
+from os import listdir, makedirs
+from os.path import join, exists
 
 from gdpc.renderer import Renderer
 from src.vox import VoxFile
@@ -25,9 +14,7 @@ renderer.set_default_viewer()
 
 vox_file_directory = join('blueprints', 'vox')
 for vox_file_name in listdir(vox_file_directory):
-    vox_file = VoxFile(join(vox_file_directory, vox_file_name))
-    vox_file.read()
-    vox_file.close()
+    vox_file = VoxFile.from_file(join(vox_file_directory, vox_file_name))
 
     palette = vox_file.get_color_palette()
     for model in vox_file.get_models():
