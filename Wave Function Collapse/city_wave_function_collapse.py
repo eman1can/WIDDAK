@@ -31,8 +31,8 @@ ImageShow.register(viewer, 0)
 
 np.set_printoptions(threshold=sys.maxsize)
 
-HEIGHT = 16
-WIDTH = 16
+HEIGHT = 32
+WIDTH = 32
 SEED = 8
 
 UL    = 0
@@ -62,25 +62,27 @@ DY = [1, 1, 1, 0, 0, -1, -1, -1]
 #             [0, 8, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 0],\
 #             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
 EXAMPLE = np.array(
-           [[ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-           [ 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 0, 0, 0],
-           [ 0, 0, 0, 0, 0, 0, 0, 3, 4, 4, 11,2, 4, 3, 11,1, 3, 4, 1, 1, 0, 0, 0, 0],
-           [ 0, 0, 0, 0, 0, 0, 3, 2, 4, 11,2, 2, 2, 2, 2, 3, 4, 4, 5, 1, 10,0, 0, 0],
-           [ 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 12,11,11,3, 2, 2, 5, 5, 5, 5, 12,0, 0, 0],
-           [ 0, 0, 0, 0, 0, 3, 7, 7, 8, 8, 8, 8, 7, 7, 8, 5, 5, 5, 5, 5, 12,0, 0, 0],
-           [ 0, 0, 0, 0, 0, 7, 7, 7, 8, 8, 8, 8, 7, 11,11,11,11,1, 1, 1, 1, 0, 0, 0],
-           [ 0, 0, 0, 9, 9, 4, 4, 8, 8, 8, 8, 8, 11,11,6, 11,11,12,1, 1, 1, 0, 0, 0],
-           [ 0, 0, 0, 9, 3, 3, 4, 12,11,11,11,11,3, 2, 6, 2, 12,12,12,1, 0, 0, 0, 0],
-           [ 0, 0, 1, 9, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 2, 12,12,12,0, 0, 0, 0, 0],
-           [ 0, 0, 1, 9, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2, 12,12,12,0, 0, 0, 0, 0],
-           [ 0, 0, 2, 9, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2, 12,12,12,0, 0, 0, 0, 0],
-           [ 0, 0, 2, 9, 4, 2, 2, 2, 2, 3, 3, 3, 3, 11,11,3, 2, 1, 1, 1, 0, 0, 0, 0],
-           [ 0, 0, 2, 4, 10,4, 2, 3, 2, 3, 2, 9, 2, 2, 11,11,2, 1, 1, 1, 0, 0, 0, 0],
-           [ 0, 0, 2, 10,4, 2, 12,3, 2, 9, 12,2, 2, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0, 0],
-           [ 0, 0, 2, 4, 4, 2, 2, 3, 9, 9, 12,2, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0],
-           [ 0, 0, 2, 2, 1, 0, 12,1, 12,9, 9, 2, 0, 0, 1, 12,12,2, 0, 0, 0, 0, 0, 0],
-           [ 0, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-           [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]], np.uint8)
+          [[13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13],
+           [13,13,13,13,13,13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,13,13,13],
+           [13,13,13,13,13,13, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0,13,13],
+           [13,13,13,13,13, 0, 0, 3, 4, 4, 11,2, 4, 3, 11,1, 3, 4, 1, 1, 0, 0,13],
+           [13,13,13,13,13, 0, 3, 2, 4, 11,2, 2, 2, 2, 2, 3, 4, 4, 5, 1, 10,0,13],
+           [13,13,13,13, 0, 0, 1, 2, 3, 4, 12,11,11,3, 2, 2, 5, 5, 5, 5, 12,0,13],
+           [13,13,13,13, 0, 3, 7, 7, 8, 8, 8, 8, 7, 7, 8, 5, 5, 5, 5, 5, 12,0,13],
+           [13,13, 0, 0, 0, 7, 7, 7, 8, 8, 8, 8, 7, 11,11,11,11,1, 1, 1, 1, 0,13],
+           [13,13, 0, 9, 9, 4, 4, 8, 8, 8, 8, 8, 11,11,6, 11,11,12,1, 1, 1, 0,13],
+           [13, 0, 0, 9, 3, 3, 4, 12,11,11,11,11,3, 2, 6, 2, 12,12,12,1, 0, 0,13],
+           [13, 0, 1, 9, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 2, 12,12,12,0, 0,13,13],
+           [13, 0, 1, 9, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2, 12,12,12,0,13,13,13],
+           [13, 0, 2, 9, 2, 2, 2, 2, 2, 3, 3, 3, 3, 3, 3, 2, 12,12,12,0, 0,13,13],
+           [13, 0, 2, 9, 4, 2, 2, 2, 2, 3, 3, 3, 3, 11,11,3, 2, 1, 1, 1, 0,13,13],
+           [13, 0, 2, 4, 10,4, 2, 3, 2, 3, 2, 9, 2, 2, 11,11,2, 1, 1, 1, 0,13,13],
+           [13, 0, 2, 10,4, 2, 12,3, 2, 9, 12,2, 2, 2, 2, 2, 2, 1, 1, 1, 0,13,13],
+           [13, 0, 2, 4, 4, 2, 2, 3, 9, 9, 12,2, 0, 1, 1, 1, 1, 0, 0, 0, 0,13,13],
+           [13, 0, 2, 2, 1, 0, 12,1, 12,9, 9, 2, 0, 0, 1, 12,12,2, 0, 13,13,13,13],
+           [13, 0, 1, 1, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0,13,13,13,13],
+           [13, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,13, 0, 0, 0, 0, 0,13,13,13,13],
+           [13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13,13]], np.uint8)
 
 def get_image(res):
     image_data = np.zeros((HEIGHT, WIDTH, 3), dtype=np.uint8)
@@ -100,14 +102,18 @@ def get_image(res):
         [0x81, 0x81, 0x81],
         [0x4f, 0x4f, 0x4f],
         [0xbf, 0xe9, 0xff],
-        [0x7d, 0xb6, 0xe1]
+        [0x7d, 0xb6, 0xe1],
+        [0x00, 0x00, 0x00]
     ]
 
     rows, cols = res.shape
     for rix, cix in product(range(rows), range(cols)):
         image_data[rix, cix] = colors[res[rix][cix] + 2]
-
-    return Image.fromarray(image_data, mode='RGB')
+        #for i in range(10):
+        #    for j in range(10):
+        #        image_data[rix * 10 + i, cix * 10 + j] = colors[res[rix][cix] + 2]
+    return image_data
+    #return Image.fromarray(image_data, mode='RGB')
 
 def show_arr(res):
     image = get_image(res)
@@ -120,9 +126,19 @@ def save_arr(res):
     image = get_image(res)
     images.append(image)
 
-def gen_gif():
+def gen_gif(name):
     global images
-    imageio.mimsave(join('renders', 'wfc', 'output.gif'), images)
+    tmp = []
+    for img in images:
+        image_data = np.zeros((HEIGHT * 10, WIDTH * 10, 3), dtype=np.uint8)
+        for h in range(HEIGHT):
+            for w in range(WIDTH):
+                for i in range(10):
+                    for j in range(10):
+                        image_data[h * 10 + i][w * 10 + j] = img[h][w]
+        tmp.append(Image.fromarray(image_data, mode='RGB'))
+    #images = [images[i] for i in range(0, len(images), 100)]
+    imageio.mimsave(join('renders', 'wfc', name), tmp + [tmp[-1]] + [tmp[-1]] + [tmp[-1]] + [tmp[-1]] + [tmp[-1]] + [tmp[-1]] + [tmp[-1]] + [tmp[-1]] + [tmp[-1]])
 
 def intersect_lists(ls0, ls1):
     res = np.full(len(ls0), 0, dtype = np.int32)
@@ -180,17 +196,17 @@ def WFC_create_rules(inp):
     for x in range(len(rules)):
         for y in range(len(rules[x])):
             for z in range(len(rules[x][y])):
-                rules[x][y][z] = rules[x][y][z]**2
+                rules[x][y][z] = rules[x][y][z]**3
     return rules
 
 def get_environment():
     res = np.full((HEIGHT, WIDTH), -1, dtype = np.int32)
     for i in range(WIDTH):
-        res[0][i] = 0
-        res[HEIGHT - 1][i] = 0
+        res[0][i] = 13
+        res[HEIGHT - 1][i] = 13
     for i in range(HEIGHT):
-        res[i][0] = 0
-        res[i][WIDTH - 1] = 0
+        res[i][0] = 13
+        res[i][WIDTH - 1] = 13
     return res
 
 def AddToQueue(q, y, x):
@@ -316,7 +332,8 @@ def WFC_Cleanup(output):
                 output[iy, ix] = 1  # Change to low residential
     return output
 
-def collapse_this():
+def collapse_this(iter):
+    global images
     thing = False
     rules = WFC_create_rules(EXAMPLE)
     freqs = WFC_create_freqs(EXAMPLE, rules)
@@ -325,19 +342,20 @@ def collapse_this():
     errs = []
     least = 1.0
     start = time_ns()
-    while least > 0.02:
+    while least > 0.05:
         thing = False
         while (not thing):
             res = get_environment()
+            images.clear()
             thing = WFC_collapse_rules(res, rules, freqs, freqses, resses)
         attempt = get_error(freqses[1], freqs)
         if attempt < least:
             least = attempt
             resses[0] = resses[1]
     print((time_ns() - start) / 1000000)
-    show_arr(resses[0])
-    resses[0] = WFC_Cleanup(resses[0])
-    show_arr(resses[0])
+    gen_gif("big_" + str(iter) + ".gif")
+    #resses[0] = WFC_Cleanup(resses[0])
+    #show_arr(resses[0])
 
 def WFC_print_rules(rules):
     for tile_types in rules:
@@ -347,4 +365,5 @@ def WFC_print_rules(rules):
             print('\b')
         print('-' * (len(surrounding_tiles) * 5 + 3 * len(surrounding_tiles) - 1))
 
-collapse_this()
+for i in range(30):
+    collapse_this(i)
