@@ -48,7 +48,7 @@ This is where code for the individual sections of the project live, each section
 
 2. #### Wave Function Collapse/
     A custom wave function collapse algorithm for parceling town centers from environment data and town patterns
-3. #### SMCA/ "Slime Mold Cellular Automata"
+3. #### nca/encasm "Evolved Neural Cellular Automata Slime Mold"
     Building roads and calculating city centers based off of environmental data utilizing cellular automata
 4. #### Environmental Detection/
     Getting environmental data from gdpc and formatting it in a way that is understood by the rest of our code. Also includes things such as resource location, hazard detection, existing structure integration, and more.
